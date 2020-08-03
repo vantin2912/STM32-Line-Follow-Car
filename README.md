@@ -23,4 +23,5 @@
 	Res 1k Ohm: 0603 SMD
 	Led Blue: 0805 SMD
 	Led: Led siêu sáng
+	Cap 0.1 uF: 0805 SMD
 	
