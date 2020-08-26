@@ -24,6 +24,18 @@
 	Led Blue: 0805 SMD
 	Led: Led siêu sáng
 	Cap 0.1 uF: 0805 SMD
+## Task ToDo
+- Làm mạch đặt mạch (Done)
+- Làm khung xe (Đức Working)
+- ADC Read (Done)
+- PWM (Done)
+- Encoder Read (Tin Working)
+- LCD I2C (Cần thiết)
+- Button Process
+- UART (optional)
+- Điều khiển động cơ
+- Điều khiển Servo
+
 
 ## Code Note
 ### Quy tắt đặt tên hàm:
