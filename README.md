@@ -24,4 +24,17 @@
 	Led Blue: 0805 SMD
 	Led: Led siêu sáng
 	Cap 0.1 uF: 0805 SMD
-	
+
+## Code Note
+### Quy tắt đặt tên hàm:
+	{Người viết hàm USR(1-3)}_{Đối tượng tác động}_{Hành động}();
+	VD: USR1_Motor1_SetPWM()
+		USR1: Tín
+		USR2: Đức
+		USR3: Dũng
+	Mọi người có đề xuất hay ý kiến gì có thể thêm vào;
+### ADC Note:
+	Giá trị ADC đọc được lưu trong mảng ADC_Value[8];
+### PWM Note
+	Tần số 10kHZ
+	Giá trị tham số truyền vào 0-6399

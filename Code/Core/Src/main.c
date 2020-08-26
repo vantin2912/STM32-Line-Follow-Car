@@ -60,6 +60,15 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
+void USR1_Motor1_EnablePWM(void);
+void USR1_Motor1_DisablePWM(void);
+
+void USR1_Motor2_EnablePWM(void);
+void USR1_Motor2_DisablePWM(void);
+
+void USR1_Motor1_SetPWM(uint16_t PWMVal);
+void USR1_Motor2_SetPWM(uint16_t PWMVal);
+
 
 /* USER CODE END PFP */
 
@@ -81,7 +90,17 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_AFIO);
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+
+  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+
+  /* System interrupt init*/
+
+  /** NOJTAG: JTAG-DP Disabled and SW-DP Enabled
+  */
+  LL_GPIO_AF_Remap_SWJ_NOJTAG();
 
   /* USER CODE BEGIN Init */
 
@@ -105,14 +124,20 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-
+  USR1_Motor1_EnablePWM();
+  USR1_Motor2_EnablePWM();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  int a = 0;
+	  LL_mDelay(5000);
+	  USR1_Motor1_SetPWM(3200-1);
+	  USR1_Motor2_SetPWM(4800-1);
+	  LL_mDelay(5000);
+	  USR1_Motor1_SetPWM(4800-1);
+	  USR1_Motor2_SetPWM(1600-1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -126,8 +151,8 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  LL_FLASH_SetLatency(LL_FLASH_LATENCY_0);
-  while(LL_FLASH_GetLatency()!= LL_FLASH_LATENCY_0)
+  LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
+  while(LL_FLASH_GetLatency()!= LL_FLASH_LATENCY_2)
   {
   }
   LL_RCC_HSI_SetCalibTrimming(16);
@@ -138,24 +163,27 @@ void SystemClock_Config(void)
   {
 
   }
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI_DIV_2, LL_RCC_PLL_MUL_16);
+  LL_RCC_PLL_Enable();
+
+   /* Wait till PLL is ready */
+  while(LL_RCC_PLL_IsReady() != 1)
+  {
+
+  }
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
-  LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
+  LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_2);
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSI);
+  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
 
    /* Wait till System clock is ready */
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSI)
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
 
   }
-  LL_SetSystemCoreClock(8000000);
-
-   /* Update the time base */
-  if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSRC_PCLK2_DIV_2);
+  LL_Init1msTick(64000000);
+  LL_SetSystemCoreClock(64000000);
+  LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSRC_PCLK2_DIV_8);
 }
 
 /**
@@ -363,30 +391,33 @@ static void MX_TIM1_Init(void)
   /* USER CODE END TIM1_Init 1 */
   TIM_InitStruct.Prescaler = 0;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct.Autoreload = 65535;
+  TIM_InitStruct.Autoreload = 6400;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   TIM_InitStruct.RepetitionCounter = 0;
   LL_TIM_Init(TIM1, &TIM_InitStruct);
-  LL_TIM_DisableARRPreload(TIM1);
+  LL_TIM_EnableARRPreload(TIM1);
   LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH1);
   TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM1;
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
-  TIM_OC_InitStruct.CompareValue = 0;
+  TIM_OC_InitStruct.CompareValue = 3200;
   TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
   TIM_OC_InitStruct.OCNPolarity = LL_TIM_OCPOLARITY_HIGH;
-  TIM_OC_InitStruct.OCIdleState = LL_TIM_OCIDLESTATE_LOW;
+  TIM_OC_InitStruct.OCIdleState = LL_TIM_OCIDLESTATE_HIGH;
   TIM_OC_InitStruct.OCNIdleState = LL_TIM_OCIDLESTATE_LOW;
   LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH1, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM1, LL_TIM_CHANNEL_CH1);
   LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH3);
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
+  TIM_OC_InitStruct.CompareValue = 3199;
+  TIM_OC_InitStruct.OCIdleState = LL_TIM_OCIDLESTATE_LOW;
   LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH3, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM1, LL_TIM_CHANNEL_CH3);
   LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH4);
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
+  TIM_OC_InitStruct.CompareValue = 0;
   LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH4, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM1, LL_TIM_CHANNEL_CH4);
   LL_TIM_SetTriggerOutput(TIM1, LL_TIM_TRGO_RESET);
@@ -400,7 +431,10 @@ static void MX_TIM1_Init(void)
   TIM_BDTRInitStruct.AutomaticOutput = LL_TIM_AUTOMATICOUTPUT_DISABLE;
   LL_TIM_BDTR_Init(TIM1, &TIM_BDTRInitStruct);
   /* USER CODE BEGIN TIM1_Init 2 */
+  LL_TIM_EnableAllOutputs(TIM1);
 
+
+  LL_TIM_EnableCounter(TIM1);
   /* USER CODE END TIM1_Init 2 */
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOA);
   /**TIM1 GPIO Configuration
@@ -410,7 +444,7 @@ static void MX_TIM1_Init(void)
   */
   GPIO_InitStruct.Pin = LL_GPIO_PIN_8|LL_GPIO_PIN_10|LL_GPIO_PIN_11;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -633,8 +667,9 @@ static void MX_USART1_UART_Init(void)
 static void MX_DMA_Init(void)
 {
 
+  /* Init with LL driver */
   /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
+  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
@@ -735,6 +770,33 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+void USR1_Motor1_EnablePWM(void)
+{
+	LL_TIM_CC_EnableChannel(TIM1,LL_TIM_CHANNEL_CH1);
+}
+void USR1_Motor1_DisablePWM(void)
+{
+	LL_TIM_CC_DisableChannel(TIM1,LL_TIM_CHANNEL_CH1);
+}
+
+
+void USR1_Motor2_EnablePWM(void)
+{
+	LL_TIM_CC_EnableChannel(TIM1,LL_TIM_CHANNEL_CH3);
+}
+void USR1_Motor2_DisablePWM(void)
+{
+	LL_TIM_CC_EnableChannel(TIM1,LL_TIM_CHANNEL_CH1);
+}
+
+void USR1_Motor1_SetPWM(uint16_t PWMVal) // PWM Val between 0-6399
+{
+	LL_TIM_OC_SetCompareCH1(TIM1, PWMVal);
+}
+void USR1_Motor2_SetPWM(uint16_t PWMVal) // PWM Val between 0-6399
+{
+	LL_TIM_OC_SetCompareCH3(TIM1,PWMVal);
+}
 /* USER CODE END 4 */
 
 /**
