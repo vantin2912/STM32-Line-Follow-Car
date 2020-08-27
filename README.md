@@ -32,7 +32,7 @@
 - Encoder Read (Tin Working)
 - LCD I2C (Cần thiết)
 - Button Process
-- UART (optional)
+- UART (optional) (Done)
 - Điều khiển động cơ
 - Điều khiển Servo
 
@@ -49,4 +49,6 @@
 	Giá trị ADC đọc được lưu trong mảng ADC_Value[8];
 ### PWM Note
 	Tần số 10kHZ
-	Giá trị tham số truyền vào 0-6399
+	Giá trị tham số truyền vào 0-7199
+### UART Note
+	Dùng printf và các hàm của stdio.h của c để gửi UART
