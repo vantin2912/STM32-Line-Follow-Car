@@ -29,7 +29,7 @@
 - Làm khung xe (Đức Working)
 - ADC Read (Done)
 - PWM (Done)
-- Encoder Read (Tin Working)
+- Encoder Read (Done)
 - LCD I2C (Cần thiết)
 - Button Process
 - UART (optional) (Done)
@@ -52,3 +52,5 @@
 	Giá trị tham số truyền vào 0-7199
 ### UART Note
 	Dùng printf và các hàm của stdio.h của c để gửi UART
+### Encoder Note
+	Update Later
