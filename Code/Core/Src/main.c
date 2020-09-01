@@ -49,10 +49,9 @@
 
 PUTCHAR_PROTOTYPE
 {
-
-	LL_USART_TransmitData8(USART1,(uint8_t)ch);
 	while (LL_USART_IsActiveFlag_TC(USART1)==0)
 	{}
+	LL_USART_TransmitData8(USART1,(uint8_t)ch);
 
   	return ch;
 }
@@ -102,6 +101,8 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
+	TIM2_SMCR;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -121,8 +122,8 @@ int main(void)
 
   /* USER CODE BEGIN Init */
   setvbuf(stdin, NULL, _IONBF, 0);
-    setvbuf(stdout, NULL, _IONBF, 0);
-    setvbuf(stderr, NULL, _IONBF, 0);
+  setvbuf(stdout, NULL, _IONBF, 0);
+  setvbuf(stderr, NULL, _IONBF, 0);
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -155,14 +156,16 @@ int main(void)
   while (1)
   {
 	  LL_mDelay(1000);
+	  printf("Tim2->CNT %u", TIM2->CNT);
 	  Count = LL_TIM_GetCounter(TIM2);
 	  USR1_Motor1_SetPWM(3200-1);
 	  USR1_Motor2_SetPWM(3600-1);
-
+	  printf("Count Value %lu \n", Count);
 	  LL_mDelay(1000);
 	  Count = LL_TIM_GetCounter(TIM2);
 	  USR1_Motor1_SetPWM(4800-1);
 	  USR1_Motor2_SetPWM(1800-1);
+	  printf("Count Value %lu \n", Count);
 
     /* USER CODE END WHILE */
 
@@ -514,24 +517,27 @@ static void MX_TIM2_Init(void)
   LL_TIM_SetEncoderMode(TIM2, LL_TIM_ENCODERMODE_X4_TI12);
   LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_DIRECTTI);
   LL_TIM_IC_SetPrescaler(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1);
-  LL_TIM_IC_SetFilter(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV1);
-  LL_TIM_IC_SetPolarity(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_IC_POLARITY_RISING);
+  LL_TIM_IC_SetFilter(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV32_N8);
+  LL_TIM_IC_SetPolarity(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_IC_POLARITY_FALLING);
   LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_ACTIVEINPUT_DIRECTTI);
   LL_TIM_IC_SetPrescaler(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_ICPSC_DIV1);
-  LL_TIM_IC_SetFilter(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_IC_FILTER_FDIV1);
-  LL_TIM_IC_SetPolarity(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_IC_POLARITY_RISING);
+  LL_TIM_IC_SetFilter(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_IC_FILTER_FDIV32_N8);
+  LL_TIM_IC_SetPolarity(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_IC_POLARITY_FALLING);
   TIM_InitStruct.Prescaler = 0;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
   TIM_InitStruct.Autoreload = 65535;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   LL_TIM_Init(TIM2, &TIM_InitStruct);
-  LL_TIM_EnableARRPreload(TIM2);
+  LL_TIM_DisableARRPreload(TIM2);
   LL_TIM_SetTriggerOutput(TIM2, LL_TIM_TRGO_RESET);
   LL_TIM_DisableMasterSlaveMode(TIM2);
   /* USER CODE BEGIN TIM2_Init 2 */
-  LL_TIM_CC_EnableChannel(TIM2,LL_TIM_CHANNEL_CH1);
-  LL_TIM_CC_EnableChannel(TIM2,LL_TIM_CHANNEL_CH2);
+//  LL_TIM_CC_EnableChannel(TIM2,LL_TIM_CHANNEL_CH1);
+//  LL_TIM_CC_EnableChannel(TIM2,LL_TIM_CHANNEL_CH2);
+  LL_TIM_SetCounter(TIM2,0);
   LL_TIM_EnableCounter(TIM2);
+  LL_TIM_ClearFlag_UPDATE(TIM2);
+  LL_TIM_EnableIT_UPDATE(TIM2);
 
   /* USER CODE END TIM2_Init 2 */
 
@@ -607,10 +613,6 @@ static void MX_TIM4_Init(void)
 
   /* Peripheral clock enable */
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
-
-  /* TIM4 interrupt Init */
-  NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
-  NVIC_EnableIRQ(TIM4_IRQn);
 
   /* USER CODE BEGIN TIM4_Init 1 */
 
