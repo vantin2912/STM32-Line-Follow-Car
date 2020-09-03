@@ -22,7 +22,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
 #include "stdio.h"
+#include "MotorControl.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,7 +62,7 @@ PUTCHAR_PROTOTYPE
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-__IO volatile uint16_t ADC_Value[8];
+volatile uint16_t ADC_Value[8];
 
 /* USER CODE END PV */
 
@@ -76,14 +78,6 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
-void USR1_Motor1_EnablePWM(void);
-void USR1_Motor1_DisablePWM(void);
-
-void USR1_Motor2_EnablePWM(void);
-void USR1_Motor2_DisablePWM(void);
-
-void USR1_Motor1_SetPWM(uint16_t PWMVal);
-void USR1_Motor2_SetPWM(uint16_t PWMVal);
 
 
 /* USER CODE END PFP */
@@ -155,17 +149,16 @@ int main(void)
   uint32_t Count = LL_TIM_GetCounter(TIM2);
   while (1)
   {
-	  LL_mDelay(1000);
-	  Count = LL_TIM_GetCounter(TIM3);
-	  USR1_Motor1_SetPWM(3200-1);
-	  USR1_Motor2_SetPWM(3600-1);
-	  printf("Count Value %lu \n", Count);
-	  LL_mDelay(1000);
-	  Count = LL_TIM_GetCounter(TIM3);
-	  USR1_Motor1_SetPWM(4800-1);
-	  USR1_Motor2_SetPWM(1800-1);
-	  printf("Count Value %lu \n", Count);
-
+	  for(int i = 7199; i>=-7199;--i)
+	  {
+		  USR1_Motor1_SetPWM(i);
+		  LL_mDelay(1000);
+	  }
+	  for(int i = -7199; i<=7199;++i)
+	  {
+		  USR1_Motor1_SetPWM(i);
+		  LL_mDelay(1000);
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -269,11 +262,9 @@ static void MX_ADC1_Init(void)
 
   /* USER CODE BEGIN ADC1_Init 1 */
   LL_DMA_SetDataLength(DMA1,LL_DMA_CHANNEL_1,8);
-
-    LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_1, (uint32_t) &ADC_Value);
-    LL_DMA_SetPeriphAddress(DMA1,LL_DMA_CHANNEL_1,ADC1_DR_Address);
-
-    LL_DMA_EnableChannel(DMA1,LL_DMA_CHANNEL_1);
+  LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_1, (uint32_t) &ADC_Value);
+  LL_DMA_SetPeriphAddress(DMA1,LL_DMA_CHANNEL_1,ADC1_DR_Address);
+  LL_DMA_EnableChannel(DMA1,LL_DMA_CHANNEL_1);
   /* USER CODE END ADC1_Init 1 */
   /** Common config
   */
@@ -786,14 +777,14 @@ static void MX_GPIO_Init(void)
   /**/
   GPIO_InitStruct.Pin = LL_GPIO_PIN_15;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /**/
   GPIO_InitStruct.Pin = LL_GPIO_PIN_9;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -805,33 +796,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void USR1_Motor1_EnablePWM(void)
-{
-	LL_TIM_CC_EnableChannel(TIM1,LL_TIM_CHANNEL_CH1);
-}
-void USR1_Motor1_DisablePWM(void)
-{
-	LL_TIM_CC_DisableChannel(TIM1,LL_TIM_CHANNEL_CH1);
-}
 
-
-void USR1_Motor2_EnablePWM(void)
-{
-	LL_TIM_CC_EnableChannel(TIM1,LL_TIM_CHANNEL_CH3);
-}
-void USR1_Motor2_DisablePWM(void)
-{
-	LL_TIM_CC_EnableChannel(TIM1,LL_TIM_CHANNEL_CH1);
-}
-
-void USR1_Motor1_SetPWM(uint16_t PWMVal) // PWM Val between 0-7200
-{
-	LL_TIM_OC_SetCompareCH1(TIM1, PWMVal);
-}
-void USR1_Motor2_SetPWM(uint16_t PWMVal) // PWM Val between 0-7200
-{
-	LL_TIM_OC_SetCompareCH3(TIM1,PWMVal);
-}
 /* USER CODE END 4 */
 
 /**
