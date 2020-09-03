@@ -28,6 +28,14 @@ void USR1_Motor2_DisablePWM(void)
 
 void USR1_Motor1_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 {
+	if(PWMVal >= 7200)
+	{
+		PWMVal = 7200;
+	}
+	else if(PWMVal <= -7200)
+	{
+		PWMVal = -7200;
+	}
 	if(PWMVal >= 0)
 	{
 		LL_TIM_OC_SetCompareCH1(TIM1, (uint16_t)PWMVal);
@@ -40,6 +48,14 @@ void USR1_Motor1_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 }
 void USR1_Motor2_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 {
+	if(PWMVal >= 7200)
+	{
+		PWMVal = 7200;
+	}
+	else if(PWMVal <= -7200)
+	{
+		PWMVal = -7200;
+	}
 	if(PWMVal >= 0)
 	{
 		LL_TIM_OC_SetCompareCH3(TIM1, (uint16_t)PWMVal);

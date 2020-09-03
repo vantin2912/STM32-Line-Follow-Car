@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "stdio.h"
 #include "MotorControl.h"
 /* USER CODE END Includes */
 
@@ -36,27 +35,12 @@
 /* USER CODE BEGIN PD */
 #define ADC1_DR_Address    ((uint32_t)0x4001244C)
 
-#ifdef __GNUC__
-  /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
-     set to 'Yes') calls __io_putchar() */
-  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else
-  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#endif /* __GNUC__ */
 
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
-PUTCHAR_PROTOTYPE
-{
-	while (LL_USART_IsActiveFlag_TC(USART1)==0)
-	{}
-	LL_USART_TransmitData8(USART1,(uint8_t)ch);
-
-  	return ch;
-}
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -84,7 +68,14 @@ static void MX_TIM4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+PUTCHAR_PROTOTYPE
+{
+	while (LL_USART_IsActiveFlag_TC(USART1)==0)
+	{}
+	LL_USART_TransmitData8(USART1,(uint8_t)ch);
 
+  	return ch;
+}
 /* USER CODE END 0 */
 
 /**
@@ -141,7 +132,6 @@ int main(void)
   USR1_Motor1_EnablePWM();
   USR1_Motor2_EnablePWM();
 
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -149,16 +139,8 @@ int main(void)
   uint32_t Count = LL_TIM_GetCounter(TIM2);
   while (1)
   {
-	  for(int i = 7199; i>=-7199;--i)
-	  {
-		  USR1_Motor1_SetPWM(i);
-		  LL_mDelay(1000);
-	  }
-	  for(int i = -7199; i<=7199;++i)
-	  {
-		  USR1_Motor1_SetPWM(i);
-		  LL_mDelay(1000);
-	  }
+//	  printf("RunTime %u", GetRunTime());
+//	  LL_mDelay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -494,14 +476,16 @@ static void MX_TIM2_Init(void)
   PB3   ------> TIM2_CH2
   */
   GPIO_InitStruct.Pin = LL_GPIO_PIN_15;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_FLOATING;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   GPIO_InitStruct.Pin = LL_GPIO_PIN_3;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_FLOATING;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /* TIM2 interrupt Init */
+  NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_EnableIRQ(TIM2_IRQn);
 
   /* USER CODE BEGIN TIM2_Init 1 */
   LL_GPIO_AF_EnableRemap_TIM2();
@@ -563,6 +547,10 @@ static void MX_TIM3_Init(void)
   GPIO_InitStruct.Mode = LL_GPIO_MODE_FLOATING;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /* TIM3 interrupt Init */
+  NVIC_SetPriority(TIM3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_EnableIRQ(TIM3_IRQn);
+
   /* USER CODE BEGIN TIM3_Init 1 */
   LL_GPIO_AF_RemapPartial_TIM3();
   /* USER CODE END TIM3_Init 1 */
@@ -609,12 +597,16 @@ static void MX_TIM4_Init(void)
   /* Peripheral clock enable */
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
 
+  /* TIM4 interrupt Init */
+  NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_EnableIRQ(TIM4_IRQn);
+
   /* USER CODE BEGIN TIM4_Init 1 */
 
   /* USER CODE END TIM4_Init 1 */
-  TIM_InitStruct.Prescaler = 9999;
+  TIM_InitStruct.Prescaler = 0;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct.Autoreload = 19999;
+  TIM_InitStruct.Autoreload = 17999;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV4;
   LL_TIM_Init(TIM4, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM4);
@@ -622,7 +614,9 @@ static void MX_TIM4_Init(void)
   LL_TIM_SetTriggerOutput(TIM4, LL_TIM_TRGO_RESET);
   LL_TIM_DisableMasterSlaveMode(TIM4);
   /* USER CODE BEGIN TIM4_Init 2 */
-
+  LL_TIM_EnableIT_UPDATE(TIM4);
+  LL_TIM_SetCounter(TIM4,0);
+    LL_TIM_EnableCounter(TIM4);
   /* USER CODE END TIM4_Init 2 */
 
 }
