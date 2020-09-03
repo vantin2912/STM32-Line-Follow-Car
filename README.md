@@ -46,11 +46,19 @@
 		USR3: Dũng
 	Mọi người có đề xuất hay ý kiến gì có thể thêm vào;
 ### ADC Note:
-	Giá trị ADC đọc được lưu trong mảng ADC_Value[8];
+	Giá trị ADC đọc được lưu trong mảng ADC_Value[8] tương A0->A7;
 ### PWM Note
 	Tần số 10kHZ
-	Giá trị tham số truyền vào 0-7199
+	Dùng hàm USR1_Motor1_SetPWM(int32_t PWMVal);
+	PWMVal >0 Động cơ quay cùng chiều;
+	PWMVal <0 quay ngược lại;
+	-7200 < PWMVal <7200
 ### UART Note
 	Dùng printf và các hàm của stdio.h của c để gửi UART
 ### Encoder Note
-	Update Later
+	Biến đếm được lưu trong 2 thanh ghi TIM2->CNT và TIM3->CNT;
+	Max giá trị là 0xFFFF;
+	Dùng LL_TIM_GetCounter(TIMx) để lấy giá trị hoặc gọi trực tiếp TIMx->CNT cũng được
+	Chưa xử lý ngắt tràn
+### Servo
+	Working
