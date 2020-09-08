@@ -33,7 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define ServoReloadValue 200
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -44,6 +44,9 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 uint32_t RunTimeMillis = 0;
+
+uint8_t ServoCountValue = 0;
+uint8_t ServoCompareValue = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -213,6 +216,29 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM1 update interrupt.
+  */
+void TIM1_UP_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_UP_IRQn 0 */
+	LL_TIM_ClearFlag_UPDATE(TIM1);
+	++ServoCountValue;
+	if(ServoCountValue > ServoCompareValue)
+	{
+		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_11);
+	} else
+	{
+		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_11);
+	};
+	if(ServoCountValue > ServoReloadValue) ServoCountValue = 0;
+	printf(ServoCountValue);
+  /* USER CODE END TIM1_UP_IRQn 0 */
+  /* USER CODE BEGIN TIM1_UP_IRQn 1 */
+
+  /* USER CODE END TIM1_UP_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM2 global interrupt.
   */
 void TIM2_IRQHandler(void)
@@ -244,10 +270,13 @@ void TIM3_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-	printf("Hello");
+  LL_GPIO_TogglePin(GPIOB,LL_GPIO_PIN_15);
+  printf("ServoCPRVal %u \n", ServoCompareValue);
+  printf("ServoCNTVal %u \n", ServoCountValue);
   /* USER CODE END TIM4_IRQn 0 */
   /* USER CODE BEGIN TIM4_IRQn 1 */
-	LL_TIM_ClearFlag_UPDATE(TIM4);
+  LL_TIM_ClearFlag_UPDATE(TIM4);
+
 
   /* USER CODE END TIM4_IRQn 1 */
 }
@@ -300,9 +329,9 @@ void EXTI15_10_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-uint32_t GetRunTime(void)
+void SetServoCompare(uint8_t ServoNewVal)
 {
-return RunTimeMillis;
+	ServoCompareValue = ServoNewVal;
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

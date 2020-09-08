@@ -66,3 +66,8 @@ void USR1_Motor2_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_9);
 	}
 }
+
+void USR1_Servo_SetAngle(int8_t ServoAngle)
+{
+	SetServoCompare(150+ServoAngle/1.8);
+}
