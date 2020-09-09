@@ -273,6 +273,7 @@ void TIM4_IRQHandler(void)
   LL_GPIO_TogglePin(GPIOB,LL_GPIO_PIN_15);
   printf("ServoCPRVal %u \n", ServoCompareValue);
   printf("ServoCNTVal %u \n", ServoCountValue);
+
   /* USER CODE END TIM4_IRQn 0 */
   /* USER CODE BEGIN TIM4_IRQn 1 */
   LL_TIM_ClearFlag_UPDATE(TIM4);

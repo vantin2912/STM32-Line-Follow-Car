@@ -133,16 +133,21 @@ int main(void)
   USR1_Motor2_EnablePWM();
 
   /* USER CODE END 2 */
-
+  TIM1->DIER;
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   USR1_Motor1_SetPWM(3600);
   uint32_t Count = LL_TIM_GetCounter(TIM2);
   while (1)
   {
-	  USR1_Servo_SetAngle(0);
+//	  LL_mDelay(1000);
+//	  USR1_Servo_SetAngle(0);
+//	  LL_mDelay(1000);
+//	  USR1_Servo_SetAngle(50);
+	  printf("Hello ");
 	  LL_mDelay(1000);
-	  USR1_Servo_SetAngle(50);
+	  printf("World \n");
+	  LL_mDelay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -617,6 +622,7 @@ static void MX_TIM4_Init(void)
   LL_TIM_EnableIT_UPDATE(TIM4);
   LL_TIM_SetCounter(TIM4,0);
     LL_TIM_EnableCounter(TIM4);
+
   /* USER CODE END TIM4_Init 2 */
 
 }
