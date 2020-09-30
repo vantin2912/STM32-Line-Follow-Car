@@ -133,21 +133,16 @@ int main(void)
   USR1_Motor2_EnablePWM();
 
   /* USER CODE END 2 */
-  TIM1->DIER;
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  USR1_Motor1_SetPWM(3600);
+//  USR1_Motor1_SetPWM(-1800);
+//  USR1_Motor2_SetPWM(3600);
+  USR1_Servo_SetAngle(0);
   uint32_t Count = LL_TIM_GetCounter(TIM2);
   while (1)
   {
-//	  LL_mDelay(1000);
-//	  USR1_Servo_SetAngle(0);
-//	  LL_mDelay(1000);
-//	  USR1_Servo_SetAngle(50);
-	  printf("Hello ");
-	  LL_mDelay(1000);
-	  printf("World \n");
-	  LL_mDelay(1000);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -414,15 +409,13 @@ static void MX_TIM1_Init(void)
   TIM_OC_InitStruct.CompareValue = 0;
   TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
   TIM_OC_InitStruct.OCNPolarity = LL_TIM_OCPOLARITY_HIGH;
-  TIM_OC_InitStruct.OCIdleState = LL_TIM_OCIDLESTATE_HIGH;
+  TIM_OC_InitStruct.OCIdleState = LL_TIM_OCIDLESTATE_LOW;
   TIM_OC_InitStruct.OCNIdleState = LL_TIM_OCIDLESTATE_LOW;
   LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH1, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM1, LL_TIM_CHANNEL_CH1);
   LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH3);
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
-  TIM_OC_InitStruct.CompareValue = 3199;
-  TIM_OC_InitStruct.OCIdleState = LL_TIM_OCIDLESTATE_LOW;
   LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH3, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM1, LL_TIM_CHANNEL_CH3);
   LL_TIM_SetTriggerOutput(TIM1, LL_TIM_TRGO_RESET);

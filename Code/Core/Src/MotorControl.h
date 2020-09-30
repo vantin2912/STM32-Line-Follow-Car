@@ -39,5 +39,5 @@ void USR1_Motor2_DisablePWM(void);
 void USR1_Motor1_SetPWM(int32_t PWMVal);
 void USR1_Motor2_SetPWM(int32_t PWMVal);
 
-void USR1_Servo_SetAngle(int8_t ServoAngle);
+void USR1_Servo_SetAngle(float ServoAngle);
 #endif /* SRC_MOTORCONTROL_H_ */

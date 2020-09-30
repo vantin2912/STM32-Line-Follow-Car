@@ -225,13 +225,12 @@ void TIM1_UP_IRQHandler(void)
 	++ServoCountValue;
 	if(ServoCountValue > ServoCompareValue)
 	{
-		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_11);
+		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_11);
 	} else
 	{
-		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_11);
+		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_11);
 	};
-	if(ServoCountValue > ServoReloadValue) ServoCountValue = 0;
-	printf(ServoCountValue);
+	if(ServoCountValue >= ServoReloadValue) ServoCountValue = 0;
   /* USER CODE END TIM1_UP_IRQn 0 */
   /* USER CODE BEGIN TIM1_UP_IRQn 1 */
 
@@ -244,6 +243,7 @@ void TIM1_UP_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
+	LL_TIM_ClearFlag_UPDATE(TIM2);
 
   /* USER CODE END TIM2_IRQn 0 */
   /* USER CODE BEGIN TIM2_IRQn 1 */
@@ -257,7 +257,7 @@ void TIM2_IRQHandler(void)
 void TIM3_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM3_IRQn 0 */
-
+	LL_TIM_ClearFlag_UPDATE(TIM3);
   /* USER CODE END TIM3_IRQn 0 */
   /* USER CODE BEGIN TIM3_IRQn 1 */
 
@@ -270,9 +270,7 @@ void TIM3_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-  LL_GPIO_TogglePin(GPIOB,LL_GPIO_PIN_15);
-  printf("ServoCPRVal %u \n", ServoCompareValue);
-  printf("ServoCNTVal %u \n", ServoCountValue);
+
 
   /* USER CODE END TIM4_IRQn 0 */
   /* USER CODE BEGIN TIM4_IRQn 1 */
@@ -330,7 +328,7 @@ void EXTI15_10_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-void SetServoCompare(uint8_t ServoNewVal)
+void SetServoCompare(float ServoNewVal)
 {
 	ServoCompareValue = ServoNewVal;
 }

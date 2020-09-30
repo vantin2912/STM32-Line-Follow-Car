@@ -42,7 +42,7 @@ void USR1_Motor1_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_15);
 	} else
 	{
-		LL_TIM_OC_SetCompareCH1(TIM1,(uint16_t) -PWMVal);
+		LL_TIM_OC_SetCompareCH1(TIM1,7200 + PWMVal);
 		LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_15);
 	}
 }
@@ -62,12 +62,15 @@ void USR1_Motor2_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_9);
 	} else
 	{
-		LL_TIM_OC_SetCompareCH3(TIM1, (uint16_t)-PWMVal);
+		LL_TIM_OC_SetCompareCH3(TIM1, 7200 + PWMVal);
 		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_9);
 	}
 }
 
-void USR1_Servo_SetAngle(int8_t ServoAngle)
+void USR1_Servo_SetAngle(float ServoAngle)
 {
-	SetServoCompare(150+ServoAngle/1.8);
+	float a;
+	a = 15+ServoAngle/18;
+
+	SetServoCompare(15+ServoAngle/18);
 }
