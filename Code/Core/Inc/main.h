@@ -17,6 +17,8 @@
   *
   ******************************************************************************
   */
+
+
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -49,21 +51,24 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stdio.h"
+
+
 
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+extern uint16_t Sensor_Threshold[8];
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
+
 
 /* USER CODE END EM */
 
@@ -71,7 +76,7 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void SetServoCompare(float ServoNewVal);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -88,6 +93,15 @@ void Error_Handler(void);
                                                                  0 bit  for subpriority */
 #endif
 /* USER CODE BEGIN Private defines */
+#ifdef __GNUC__
+  /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+     set to 'Yes') calls __io_putchar() */
+  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+
+
 
 /* USER CODE END Private defines */
 

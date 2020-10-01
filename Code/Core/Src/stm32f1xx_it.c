@@ -23,6 +23,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,7 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define ServoReloadValue 200
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -42,7 +43,13 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+uint32_t RunTimeMillis = 0;
 
+uint8_t ServoCountValue = 0;
+uint8_t ServoCompareValue = 0;
+
+uint8_t MaskADC = 0;
+//extern uint16_t Sensor_Threshold[];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -212,6 +219,73 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM1 update interrupt.
+  */
+void TIM1_UP_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_UP_IRQn 0 */
+
+	++ServoCountValue;
+	if(ServoCountValue > ServoCompareValue)
+	{
+		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_11);
+	} else
+	{
+		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_11);
+	};
+	if(ServoCountValue >= ServoReloadValue) ServoCountValue = 0;
+	LL_TIM_ClearFlag_UPDATE(TIM1);
+  /* USER CODE END TIM1_UP_IRQn 0 */
+  /* USER CODE BEGIN TIM1_UP_IRQn 1 */
+
+  /* USER CODE END TIM1_UP_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM2 global interrupt.
+  */
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+	LL_TIM_ClearFlag_UPDATE(TIM2);
+
+  /* USER CODE END TIM2_IRQn 0 */
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+
+  /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM3 global interrupt.
+  */
+void TIM3_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+	LL_TIM_ClearFlag_UPDATE(TIM3);
+  /* USER CODE END TIM3_IRQn 0 */
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+
+  /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM4 global interrupt.
+  */
+void TIM4_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM4_IRQn 0 */
+
+
+  /* USER CODE END TIM4_IRQn 0 */
+  /* USER CODE BEGIN TIM4_IRQn 1 */
+  LL_TIM_ClearFlag_UPDATE(TIM4);
+//  printf ("TIM2 : %d \n", LL_TIM_GetCounter(TIM2));
+//  printf ("TIM3 : %d \n", LL_TIM_GetCounter(TIM3));
+
+  /* USER CODE END TIM4_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt.
   */
 void USART1_IRQHandler(void)
@@ -259,6 +333,9 @@ void EXTI15_10_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-
+void SetServoCompare(float ServoNewVal)
+{
+	ServoCompareValue = ServoNewVal;
+}
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

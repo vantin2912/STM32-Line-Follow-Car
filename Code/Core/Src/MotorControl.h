@@ -5,21 +5,41 @@
  *      Author: vanti
  */
 #pragma once
-#ifndef __MAIN_H
+
 #include <main.h>
-#endif
+
 
 #ifndef SRC_MOTORCONTROL_H_
 #define SRC_MOTORCONTROL_H_
 
-void USR1_Motor1_EnablePWM(void);
-void USR1_Motor1_DisablePWM(void);
+typedef struct USR_Encoder_Data
+{
+	uint8_t EncReso;
+	int16_t EncCount;
+	uint32_t* EncCurrentVal;
+	uint32_t EncPrevVal;
+} USR_Encoder_Data;
 
-void USR1_Motor2_EnablePWM(void);
-void USR1_Motor2_DisablePWM(void);
 
-void USR1_Motor1_SetPWM(int32_t PWMVal);
-void USR1_Motor2_SetPWM(int32_t PWMVal);
+typedef struct USR_Motor_Data
+{
+	float RPSec2PWMScale;
+	float Velocity2RPSecScale;
+	float CurrentRPSec;
+	USR_Encoder_Data EncoderData;
 
+} USR_Motor_Data;
 
+void MotorL_EnablePWM(void);
+void MotorL_DisablePWM(void);
+
+void MotorR_EnablePWM(void);
+void MotorR_DisablePWM(void);
+
+void MotorL_SetPWM(int32_t PWMVal);
+void MotorR_SetPWM(int32_t PWMVal);
+
+void Servo_SetAngle(float ServoAngle);
+
+void Sensor_SetThresHold(uint16_t newThres[]);
 #endif /* SRC_MOTORCONTROL_H_ */
