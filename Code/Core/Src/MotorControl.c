@@ -5,28 +5,30 @@
  *      Author: vanti
  */
 #include "MotorControl.h"
-void USR1_Motor1_EnablePWM(void)
+
+
+void MotorL_EnablePWM(void)
 {
 	LL_TIM_CC_EnableChannel(TIM1,LL_TIM_CHANNEL_CH1);
 }
 
-void USR1_Motor1_DisablePWM(void)
+void MotorL_DisablePWM(void)
 {
 	LL_TIM_CC_DisableChannel(TIM1,LL_TIM_CHANNEL_CH1);
 }
 
 
-void USR1_Motor2_EnablePWM(void)
+void MotorR_EnablePWM(void)
 {
 	LL_TIM_CC_EnableChannel(TIM1,LL_TIM_CHANNEL_CH3);
 }
 
-void USR1_Motor2_DisablePWM(void)
+void MotorR_DisablePWM(void)
 {
 	LL_TIM_CC_EnableChannel(TIM1,LL_TIM_CHANNEL_CH1);
 }
 
-void USR1_Motor1_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
+void MotorL_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 {
 	if(PWMVal >= 7200)
 	{
@@ -46,7 +48,7 @@ void USR1_Motor1_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 		LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_15);
 	}
 }
-void USR1_Motor2_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
+void MotorR_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 {
 	if(PWMVal >= 7200)
 	{
@@ -67,10 +69,15 @@ void USR1_Motor2_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 	}
 }
 
-void USR1_Servo_SetAngle(float ServoAngle)
+void Servo_SetAngle(float ServoAngle)
 {
-	float a;
-	a = 15+ServoAngle/18;
-
+	if (ServoAngle > 90) ServoAngle = 90;
+	else if (ServoAngle < -90) ServoAngle = -90;
 	SetServoCompare(15+ServoAngle/18);
 }
+
+//void Sensor_SetThresHold(uint16_t newThres[])
+//{
+//	Sensor_Threshold = newThres;
+//
+//}

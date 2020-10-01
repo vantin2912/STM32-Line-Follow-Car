@@ -30,14 +30,16 @@ typedef struct USR_Motor_Data
 
 } USR_Motor_Data;
 
-void USR1_Motor1_EnablePWM(void);
-void USR1_Motor1_DisablePWM(void);
+void MotorL_EnablePWM(void);
+void MotorL_DisablePWM(void);
 
-void USR1_Motor2_EnablePWM(void);
-void USR1_Motor2_DisablePWM(void);
+void MotorR_EnablePWM(void);
+void MotorR_DisablePWM(void);
 
-void USR1_Motor1_SetPWM(int32_t PWMVal);
-void USR1_Motor2_SetPWM(int32_t PWMVal);
+void MotorL_SetPWM(int32_t PWMVal);
+void MotorR_SetPWM(int32_t PWMVal);
 
-void USR1_Servo_SetAngle(float ServoAngle);
+void Servo_SetAngle(float ServoAngle);
+
+void Sensor_SetThresHold(uint16_t newThres[]);
 #endif /* SRC_MOTORCONTROL_H_ */

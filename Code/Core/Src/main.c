@@ -46,8 +46,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-volatile uint16_t ADC_Value[8];
-
+volatile uint16_t Sensor_ADC_Value[8];
+uint16_t Sensor_Threshold[] = {2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -129,8 +129,8 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-  USR1_Motor1_EnablePWM();
-  USR1_Motor2_EnablePWM();
+  MotorL_EnablePWM();
+  MotorR_EnablePWM();
 
   /* USER CODE END 2 */
 
@@ -138,11 +138,28 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 //  USR1_Motor1_SetPWM(-1800);
 //  USR1_Motor2_SetPWM(3600);
-  USR1_Servo_SetAngle(0);
+  Servo_SetAngle(0);
   uint32_t Count = LL_TIM_GetCounter(TIM2);
+//  MotorL_SetPWM(3600);
+//  MotorR_SetPWM(-4800);
   while (1)
   {
 
+//	  USR1_Motor1_SetPWM(7200);
+//	  USR1_Motor2_SetPWM(7200);
+	  for(int i = 0; i < 8; ++i)
+	  {
+		  if(Sensor_Threshold[i] < Sensor_ADC_Value[i])
+			  printf("1 ");
+		  else
+			  printf("0 ");
+	  }
+	  for(int i =0; i < 8;++i)
+	  {
+		  printf("%d " , Sensor_ADC_Value[i]);
+	  }
+	  printf("\n");
+	  LL_mDelay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -246,7 +263,7 @@ static void MX_ADC1_Init(void)
 
   /* USER CODE BEGIN ADC1_Init 1 */
   LL_DMA_SetDataLength(DMA1,LL_DMA_CHANNEL_1,8);
-  LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_1, (uint32_t) &ADC_Value);
+  LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_1, (uint32_t) &Sensor_ADC_Value);
   LL_DMA_SetPeriphAddress(DMA1,LL_DMA_CHANNEL_1,ADC1_DR_Address);
   LL_DMA_EnableChannel(DMA1,LL_DMA_CHANNEL_1);
   /* USER CODE END ADC1_Init 1 */
@@ -596,16 +613,16 @@ static void MX_TIM4_Init(void)
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
 
   /* TIM4 interrupt Init */
-  NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),4, 0));
   NVIC_EnableIRQ(TIM4_IRQn);
 
   /* USER CODE BEGIN TIM4_Init 1 */
 
   /* USER CODE END TIM4_Init 1 */
-  TIM_InitStruct.Prescaler = 0;
+  TIM_InitStruct.Prescaler = 199;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
   TIM_InitStruct.Autoreload = 17999;
-  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV2;
+  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV4;
   LL_TIM_Init(TIM4, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM4);
   LL_TIM_SetClockSource(TIM4, LL_TIM_CLOCKSOURCE_INTERNAL);

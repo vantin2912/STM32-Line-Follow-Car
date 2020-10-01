@@ -47,6 +47,9 @@ uint32_t RunTimeMillis = 0;
 
 uint8_t ServoCountValue = 0;
 uint8_t ServoCompareValue = 0;
+
+uint8_t MaskADC = 0;
+//extern uint16_t Sensor_Threshold[];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -221,7 +224,7 @@ void DMA1_Channel1_IRQHandler(void)
 void TIM1_UP_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_IRQn 0 */
-	LL_TIM_ClearFlag_UPDATE(TIM1);
+
 	++ServoCountValue;
 	if(ServoCountValue > ServoCompareValue)
 	{
@@ -231,6 +234,7 @@ void TIM1_UP_IRQHandler(void)
 		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_11);
 	};
 	if(ServoCountValue >= ServoReloadValue) ServoCountValue = 0;
+	LL_TIM_ClearFlag_UPDATE(TIM1);
   /* USER CODE END TIM1_UP_IRQn 0 */
   /* USER CODE BEGIN TIM1_UP_IRQn 1 */
 
@@ -275,7 +279,8 @@ void TIM4_IRQHandler(void)
   /* USER CODE END TIM4_IRQn 0 */
   /* USER CODE BEGIN TIM4_IRQn 1 */
   LL_TIM_ClearFlag_UPDATE(TIM4);
-
+//  printf ("TIM2 : %d \n", LL_TIM_GetCounter(TIM2));
+//  printf ("TIM3 : %d \n", LL_TIM_GetCounter(TIM3));
 
   /* USER CODE END TIM4_IRQn 1 */
 }
