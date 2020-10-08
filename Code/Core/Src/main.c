@@ -182,7 +182,7 @@ int main(void)
 	  LineDetect = 0;
 	  Sensor_Convert_A2D();
 //	  Sensor_Print_Thres();
-//	  Sensor_PrintValue();
+	  Sensor_PrintValue();
 //	  Sensor_Print_LineDetect();
 //	  Servo_SetAngle(50);
 //	  LL_mDelay(200);
@@ -194,7 +194,7 @@ int main(void)
 //	  LL_mDelay(200);
 
 //	  LL_mDelay(2);
-	  if(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000)
+	  if(LineDetect == 0b00011000)
 	  {
 		  CarState = DiThang;
 		  MotorL_SetPWM(MaxSpeed);
@@ -219,30 +219,34 @@ int main(void)
 		  switch (LineDetect)
 		  {
 			  case	0b00000001:
-				  MotorL_SetPWM(MaxSpeed * 0.75);
-				  MotorR_SetPWM(MaxSpeed * 0.9);
+				  MotorR_SetPWM(MaxSpeed * 0.75);
+				  MotorL_SetPWM(MaxSpeed * 0.95);
 				  Servo_SetAngle(54);
 				  break;
 			  case 0b00000011:
-				  MotorL_SetPWM(MaxSpeed * 0.8);
-				  MotorR_SetPWM(MaxSpeed * 0.9);
+				  MotorR_SetPWM(MaxSpeed * 0.75);
+				  MotorL_SetPWM(MaxSpeed * 0.9);
 				  Servo_SetAngle(54);
 				  break;
 			  case 0b00000111:
-				  MotorL_SetPWM(MaxSpeed * 0.85);
-				  MotorR_SetPWM(MaxSpeed * 1);
+				  MotorR_SetPWM(MaxSpeed * 0.85);
+				  MotorL_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(36);
 				  break;
 			  case 0b00001110:
-				  MotorL_SetPWM(MaxSpeed * 0.9);
-				  MotorR_SetPWM(MaxSpeed * 1);
+				  MotorR_SetPWM(MaxSpeed * 0.9);
+				  MotorL_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(18);
 				  break;
 			  case 0b00001100:
-				  MotorL_SetPWM(MaxSpeed * 0.95);
-				  MotorR_SetPWM(MaxSpeed * 1);
+				  MotorR_SetPWM(MaxSpeed * 0.85);
+				  MotorL_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(0);
 				  break;
+			  case 0b00011100:
+				  MotorR_SetPWM(MaxSpeed * 0.9);
+				  MotorL_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(0);
 		  }
 		  continue;
 	  }
@@ -251,30 +255,34 @@ int main(void)
 		  switch (LineDetect)
 		  {
 			  case	0b10000000:
-				  MotorR_SetPWM(MaxSpeed * 0.75);
-				  MotorL_SetPWM(MaxSpeed * 0.90);
+				  MotorL_SetPWM(MaxSpeed * 0.75);
+				  MotorR_SetPWM(MaxSpeed * 0.95);
 				  Servo_SetAngle(-54);
 				  break;
 			  case 0b11000000:
-				  MotorR_SetPWM(MaxSpeed * 0.8);
-				  MotorL_SetPWM(MaxSpeed * 0.9);
+				  MotorL_SetPWM(MaxSpeed * 0.75);
+				  MotorR_SetPWM(MaxSpeed * 0.9);
 				  Servo_SetAngle(-54);
 				  break;
 			  case 0b11100000:
-				  MotorR_SetPWM(MaxSpeed * 0.85);
-				  MotorL_SetPWM(MaxSpeed * 1);
+				  MotorL_SetPWM(MaxSpeed * 0.85);
+				  MotorR_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(-36);
 				  break;
 			  case 0b01110000:
-				  MotorR_SetPWM(MaxSpeed * 0.90);
-				  MotorL_SetPWM(MaxSpeed * 1);
+				  MotorL_SetPWM(MaxSpeed * 0.90);
+				  MotorR_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(-18);
 				  break;
 			  case 0b00110000:
-				  MotorR_SetPWM(MaxSpeed * 0.95);
-				  MotorL_SetPWM(MaxSpeed * 1);
+				  MotorL_SetPWM(MaxSpeed * 0.85);
+				  MotorR_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(-0);
 				  break;
+			  case 0b00111000:
+				  MotorL_SetPWM(MaxSpeed * 0.5);
+				  MotorR_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(-0);
 		  }
 		  continue;
 	  }
@@ -402,35 +410,35 @@ static void MX_ADC1_Init(void)
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_1, LL_ADC_CHANNEL_0);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_0, LL_ADC_SAMPLINGTIME_13CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_0, LL_ADC_SAMPLINGTIME_28CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_2, LL_ADC_CHANNEL_1);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_1, LL_ADC_SAMPLINGTIME_13CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_1, LL_ADC_SAMPLINGTIME_28CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_3, LL_ADC_CHANNEL_2);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_2, LL_ADC_SAMPLINGTIME_13CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_2, LL_ADC_SAMPLINGTIME_28CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_4, LL_ADC_CHANNEL_3);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_3, LL_ADC_SAMPLINGTIME_13CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_3, LL_ADC_SAMPLINGTIME_28CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_5, LL_ADC_CHANNEL_4);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_4, LL_ADC_SAMPLINGTIME_13CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_4, LL_ADC_SAMPLINGTIME_28CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_6, LL_ADC_CHANNEL_5);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_5, LL_ADC_SAMPLINGTIME_13CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_5, LL_ADC_SAMPLINGTIME_28CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_7, LL_ADC_CHANNEL_6);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_6, LL_ADC_SAMPLINGTIME_13CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_6, LL_ADC_SAMPLINGTIME_28CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_8, LL_ADC_CHANNEL_7);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_7, LL_ADC_SAMPLINGTIME_13CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_7, LL_ADC_SAMPLINGTIME_28CYCLES_5);
   /* USER CODE BEGIN ADC1_Init 2 */
 
   LL_ADC_REG_SetDMATransfer(ADC1,LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
@@ -943,7 +951,7 @@ void GetThreshold()
 	 LL_mDelay(1000);
 	 printf("Getting Black Line");
 	 LL_mDelay(1000);
-	 uint16_t BlackValue[] = {0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff};
+	 uint16_t BlackValue[] = {4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095};
 	 for(int i = 0; i < ADC_Sample_Times; ++i)
 	 {
 		 for(int i = 0; i < NumberOfSensor; ++i)
@@ -1000,9 +1008,14 @@ void Sensor_PrintValue()
 
 void Sensor_Print_LineDetect()
 {
-	char buffer[8];
-	itoa (LineDetect,buffer,2);
-	printf ("binary: %s\n",buffer);
+	if(PrevLine != LineDetect)
+	{
+		char buffer[8];
+		itoa (LineDetect,buffer,2);
+		printf ("binary: %s\n",buffer);
+		PrevLine = LineDetect;
+	}
+
 }
 
 void Sensor_Print_LineDetect();
