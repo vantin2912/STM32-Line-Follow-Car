@@ -19,7 +19,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_tim.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usart.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_gpio.h \
- ../Core/Src/MotorControl.h
+ ../Core/Inc/i2c_lcd.h ../Core/Inc/main.h ../Core/Src/MotorControl.h
 
 ../Core/Inc/main.h:
 
@@ -62,5 +62,9 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usart.h:
 
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_gpio.h:
+
+../Core/Inc/i2c_lcd.h:
+
+../Core/Inc/main.h:
 
 ../Core/Src/MotorControl.h:

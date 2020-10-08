@@ -19,4 +19,5 @@ stm32f1xx_it.c:260:6:TIM3_IRQHandler	8	static
 stm32f1xx_it.c:273:6:TIM4_IRQHandler	8	static
 stm32f1xx_it.c:290:6:USART1_IRQHandler	4	static
 stm32f1xx_it.c:303:6:EXTI15_10_IRQHandler	8	static
-stm32f1xx_it.c:335:6:SetServoCompare	16	static
+stm32f1xx_it.c:336:6:SetServoCompare	16	static
+stm32f1xx_it.c:346:10:millis	4	static

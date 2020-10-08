@@ -43,13 +43,12 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-uint32_t RunTimeMillis = 0;
+volatile uint32_t RunTimeMillis = 0;
 
 uint8_t ServoCountValue = 0;
 uint8_t ServoCompareValue = 0;
 
-uint8_t MaskADC = 0;
-//extern uint16_t Sensor_Threshold[];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -189,7 +188,7 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-
+	RunTimeMillis++;
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -310,7 +309,8 @@ void EXTI15_10_IRQHandler(void)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_12);
     /* USER CODE BEGIN LL_EXTI_LINE_12 */
-
+    printf("Hello");
+    GetThreshold_Flag = 1;
     /* USER CODE END LL_EXTI_LINE_12 */
   }
   if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_13) != RESET)
@@ -335,7 +335,17 @@ void EXTI15_10_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 void SetServoCompare(float ServoNewVal)
 {
-	ServoCompareValue = ServoNewVal;
+	if(ServoNewVal != ServoCompareValue)
+	{
+		ServoCompareValue = ServoNewVal;
+		ServoCountValue = 0;
+	}
+
+}
+
+uint32_t millis()
+{
+	return RunTimeMillis;
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

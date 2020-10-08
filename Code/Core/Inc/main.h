@@ -52,14 +52,20 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
-
-
+#include "stdlib.h"
+//#include "string.h"
+#include "i2c_lcd.h"
+//#include "cstring"
 
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 extern uint16_t Sensor_Threshold[8];
+extern uint8_t LineDectect;
+extern uint8_t GetThreshold_Flag;
+
+extern uint8_t ServoCountValue;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -77,6 +83,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void SetServoCompare(float ServoNewVal);
+uint32_t millis();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
