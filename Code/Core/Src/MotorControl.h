@@ -39,6 +39,9 @@ void MotorR_DisablePWM(void);
 void MotorL_SetPWM(int32_t PWMVal);
 void MotorR_SetPWM(int32_t PWMVal);
 
+void MotorR_Brake();
+void MotorL_Brake();
+
 void Servo_SetAngle(float ServoAngle);
 
 void Sensor_SetThresHold(uint16_t newThres[]);

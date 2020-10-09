@@ -40,6 +40,9 @@
 #define DiThang 0
 #define LechPhai 1
 #define LechTrai -1
+
+#define ChuyenLaneTrai -1
+#define ChuyenLanePhai 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -63,6 +66,8 @@ uint16_t MaxSpeed = 7200;
 uint8_t PrevLine = 0;
 uint8_t LineDetect = 0;
 int8_t CarState = 0;
+
+int8_t ChuyenLaneFlag = 0 ;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -167,8 +172,6 @@ int main(void)
   MotorL_SetPWM(0);
   MotorR_SetPWM(0);
   Servo_SetAngle(0);
-//  lcd_init();                                 // ham khoi dong LCD16x2
-//  lcd_send_string("GIAO TIEP I2C");
 
   /* USER CODE END 2 */
 
@@ -181,20 +184,13 @@ int main(void)
   {
 	  LineDetect = 0;
 	  Sensor_Convert_A2D();
-//	  Sensor_Print_Thres();
+	  Sensor_Print_Thres();
 	  Sensor_PrintValue();
-//	  Sensor_Print_LineDetect();
-//	  Servo_SetAngle(50);
-//	  LL_mDelay(200);
-//	  Servo_SetAngle(40);
-//	  LL_mDelay(200);
-//	  Servo_SetAngle(30);
-//	  LL_mDelay(200);
-//	  Servo_SetAngle(20);
-//	  LL_mDelay(200);
+	  Sensor_Print_LineDetect();
 
-//	  LL_mDelay(2);
-	  if(LineDetect == 0b00011000)
+	  LL_mDelay(2);
+
+	  if(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000)
 	  {
 		  CarState = DiThang;
 		  MotorL_SetPWM(MaxSpeed);
@@ -203,50 +199,87 @@ int main(void)
 		  continue;
 	  }
 
+//	  if(LineDetect == 0xFF)
+//	  {
+//		  MotorL_Brake();
+//		  MotorR_Brake();
+//		  MotorL_DisablePWM();
+//		  MotorR_DisablePWM();
+//	  }
 	  if(LineDetect == 0b10000000 || LineDetect == 0b11000000 || LineDetect == 0b11100000 ||
 			  LineDetect == 0b01110000 || LineDetect == 0b00110000)
 	  {
 		  CarState = LechPhai;
 	  }
-	  if (LineDetect == 0b00000001 || LineDetect == 0b00000011 || LineDetect == 0b00000111 ||
+	  else if (LineDetect == 0b00000001 || LineDetect == 0b00000011 || LineDetect == 0b00000111 ||
 			  LineDetect == 0b00001110 || LineDetect == 0b00001100)
 	  {
 		  CarState = LechTrai;
 	  }
 
+	  else if( LineDetect == 0b00111111 ||LineDetect == 0b00011111 || LineDetect == 0b00001111 )
+	  {
+		  ChuyenLaneFlag = ChuyenLanePhai;
+	  }
+	  else if(LineDetect == 0b11110000 || LineDetect == 0b11111000 || LineDetect == 0b11111100)
+	  {
+		  ChuyenLaneFlag = ChuyenLaneTrai;
+	  }
+
+	  if(LineDetect == 0)
+	  {
+		  if (ChuyenLaneFlag == ChuyenLaneTrai)
+		  {
+			  ChuyenLaneFlag = 0;
+			  MotorR_SetPWM(MaxSpeed * 0.75);
+			  MotorL_SetPWM(MaxSpeed * 0.4);
+			  Servo_SetAngle(-54);
+			  CarState = LechPhai;
+
+		  } else if (ChuyenLaneFlag == ChuyenLanePhai)
+		  {
+			  ChuyenLaneFlag = 0;
+			  MotorL_SetPWM(MaxSpeed * 0.75);
+			  MotorR_SetPWM(MaxSpeed * 0.4);
+			  Servo_SetAngle(54);
+			  CarState = LechTrai;
+
+		  }
+//		  continue;
+	  }
 	  if (CarState == LechTrai)
 	  {
 		  switch (LineDetect)
 		  {
 			  case	0b00000001:
-				  MotorR_SetPWM(MaxSpeed * 0.75);
-				  MotorL_SetPWM(MaxSpeed * 0.95);
+				  MotorR_SetPWM(MaxSpeed * 0.60);
+				  MotorL_SetPWM(MaxSpeed * 0.85);
 				  Servo_SetAngle(54);
 				  break;
 			  case 0b00000011:
 				  MotorR_SetPWM(MaxSpeed * 0.75);
 				  MotorL_SetPWM(MaxSpeed * 0.9);
-				  Servo_SetAngle(54);
-				  break;
-			  case 0b00000111:
-				  MotorR_SetPWM(MaxSpeed * 0.85);
-				  MotorL_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(36);
 				  break;
+			  case 0b00000111:
+				  MotorR_SetPWM(MaxSpeed * 0.84);
+				  MotorL_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(18);
+				  break;
 			  case 0b00001110:
-				  MotorR_SetPWM(MaxSpeed * 0.9);
+				  MotorR_SetPWM(MaxSpeed * 0.87);
 				  MotorL_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(18);
 				  break;
 			  case 0b00001100:
-				  MotorR_SetPWM(MaxSpeed * 0.85);
-				  MotorL_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(0);
-				  break;
-			  case 0b00011100:
 				  MotorR_SetPWM(MaxSpeed * 0.9);
 				  MotorL_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(0);
+				  break;
+//			  case 0b00011100:
+//				  MotorR_SetPWM(MaxSpeed * 0.95);
+//				  MotorL_SetPWM(MaxSpeed * 1);
+//				  Servo_SetAngle(0);
 		  }
 		  continue;
 	  }
@@ -255,34 +288,34 @@ int main(void)
 		  switch (LineDetect)
 		  {
 			  case	0b10000000:
-				  MotorL_SetPWM(MaxSpeed * 0.75);
-				  MotorR_SetPWM(MaxSpeed * 0.95);
+				  MotorL_SetPWM(MaxSpeed * 0.60);
+				  MotorR_SetPWM(MaxSpeed * 0.85);
 				  Servo_SetAngle(-54);
 				  break;
 			  case 0b11000000:
 				  MotorL_SetPWM(MaxSpeed * 0.75);
 				  MotorR_SetPWM(MaxSpeed * 0.9);
-				  Servo_SetAngle(-54);
-				  break;
-			  case 0b11100000:
-				  MotorL_SetPWM(MaxSpeed * 0.85);
-				  MotorR_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(-36);
 				  break;
+			  case 0b11100000:
+				  MotorL_SetPWM(MaxSpeed * 0.84);
+				  MotorR_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(-18);
+				  break;
 			  case 0b01110000:
-				  MotorL_SetPWM(MaxSpeed * 0.90);
+				  MotorL_SetPWM(MaxSpeed * 0.87);
 				  MotorR_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(-18);
 				  break;
 			  case 0b00110000:
-				  MotorL_SetPWM(MaxSpeed * 0.85);
+				  MotorL_SetPWM(MaxSpeed * 0.9);
 				  MotorR_SetPWM(MaxSpeed * 1);
 				  Servo_SetAngle(-0);
 				  break;
-			  case 0b00111000:
-				  MotorL_SetPWM(MaxSpeed * 0.5);
-				  MotorR_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(-0);
+//			  case 0b00111000:
+//				  MotorL_SetPWM(MaxSpeed * 0.95);
+//				  MotorR_SetPWM(MaxSpeed * 1);
+//				  Servo_SetAngle(-0);
 		  }
 		  continue;
 	  }
@@ -533,10 +566,6 @@ static void MX_TIM1_Init(void)
   /* Peripheral clock enable */
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM1);
 
-  /* TIM1 interrupt Init */
-  NVIC_SetPriority(TIM1_UP_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
-  NVIC_EnableIRQ(TIM1_UP_IRQn);
-
   /* USER CODE BEGIN TIM1_Init 1 */
 
   /* USER CODE END TIM1_Init 1 */
@@ -546,7 +575,7 @@ static void MX_TIM1_Init(void)
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   TIM_InitStruct.RepetitionCounter = 0;
   LL_TIM_Init(TIM1, &TIM_InitStruct);
-  LL_TIM_EnableARRPreload(TIM1);
+  LL_TIM_DisableARRPreload(TIM1);
   LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH1);
   TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM1;
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
@@ -741,15 +770,15 @@ static void MX_TIM4_Init(void)
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
 
   /* TIM4 interrupt Init */
-  NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),4, 0));
+  NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
   NVIC_EnableIRQ(TIM4_IRQn);
 
   /* USER CODE BEGIN TIM4_Init 1 */
 
   /* USER CODE END TIM4_Init 1 */
-  TIM_InitStruct.Prescaler = 199;
+  TIM_InitStruct.Prescaler = 1;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct.Autoreload = 7199;
+  TIM_InitStruct.Autoreload = 36;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   LL_TIM_Init(TIM4, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM4);
@@ -760,6 +789,7 @@ static void MX_TIM4_Init(void)
   LL_TIM_EnableIT_UPDATE(TIM4);
   LL_TIM_SetCounter(TIM4,0);
     LL_TIM_EnableCounter(TIM4);
+    LL_TIM_ClearFlag_UPDATE(TIM4);
 
   /* USER CODE END TIM4_Init 2 */
 
@@ -858,7 +888,7 @@ static void MX_GPIO_Init(void)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
 
   /**/
-  LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_15);
+  LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_13);
 
   /**/
   LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_15);
@@ -867,7 +897,7 @@ static void MX_GPIO_Init(void)
   LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_9|LL_GPIO_PIN_11);
 
   /**/
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_15;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_13;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -881,7 +911,14 @@ static void MX_GPIO_Init(void)
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_9|LL_GPIO_PIN_11;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_9;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /**/
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_11;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;

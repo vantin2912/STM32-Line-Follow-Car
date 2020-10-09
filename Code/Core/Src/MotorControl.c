@@ -68,13 +68,22 @@ void MotorR_SetPWM(int32_t PWMVal) // PWM Val between 0-7200
 		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_9);
 	}
 }
-
+void MotorR_Brake()
+{
+	LL_TIM_OC_SetCompareCH3(TIM1, 7200);
+	LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_9);
+}
+void MotorL_Brake()
+{
+	LL_TIM_OC_SetCompareCH1(TIM1, 7200);
+	LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_9);
+}
 void Servo_SetAngle(float ServoAngle)
 {
 
 	if (ServoAngle > 90) ServoAngle = 90;
 	else if (ServoAngle < -90) ServoAngle = -90;
-	SetServoCompare(15+ServoAngle/18);
+	SetServoCompare(750 + ServoAngle*250/90);
 }
 
 //void Sensor_SetThresHold(uint16_t newThres[])
