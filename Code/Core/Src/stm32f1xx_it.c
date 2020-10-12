@@ -250,18 +250,7 @@ void TIM3_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-//	LL_GPIO_TogglePin(GPIOA, LL_GPIO_PIN_11);
-	ServoCountValue +=1;
-	if(ServoCountValue < ServoCompareValue)
-	{
-		LL_GPIO_SetOutputPin(GPIOA,LL_GPIO_PIN_11);
-	}
-	else
-	{
-		LL_GPIO_ResetOutputPin(GPIOA,LL_GPIO_PIN_11);
-	}
-	if(ServoCountValue >= ServoReloadValue) ServoCountValue = 0;
-//	printf("ServoCountValue %d", ServoCountValue);
+
   /* USER CODE END TIM4_IRQn 0 */
   /* USER CODE BEGIN TIM4_IRQn 1 */
 	LL_TIM_ClearFlag_UPDATE(TIM4);
