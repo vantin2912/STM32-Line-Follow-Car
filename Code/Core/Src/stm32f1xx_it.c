@@ -33,7 +33,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define ServoReloadValue 10000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -45,10 +44,7 @@
 /* USER CODE BEGIN PV */
 volatile uint32_t RunTimeMillis = 0;
 
-uint16_t ServoCountValue = 10;
-uint16_t ServoCompareValue = 750;
-
-
+uint16_t AddCPRTime = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -250,21 +246,26 @@ void TIM3_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-//	LL_GPIO_TogglePin(GPIOA, LL_GPIO_PIN_11);
-	ServoCountValue +=1;
-	if(ServoCountValue < ServoCompareValue)
+	if(LL_TIM_IsActiveFlag_CC1(TIM4))
 	{
-		LL_GPIO_SetOutputPin(GPIOA,LL_GPIO_PIN_11);
+		LL_TIM_ClearFlag_CC1(TIM4);
+		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_11);
 	}
-	else
+	if(LL_TIM_IsActiveFlag_UPDATE(TIM4))
 	{
-		LL_GPIO_ResetOutputPin(GPIOA,LL_GPIO_PIN_11);
+		LL_TIM_ClearFlag_UPDATE(TIM4);
+		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_11);
 	}
-	if(ServoCountValue >= ServoReloadValue) ServoCountValue = 0;
-//	printf("ServoCountValue %d", ServoCountValue);
+	if(LL_TIM_IsActiveFlag_CC2(TIM4))
+	{
+		LL_GPIO_TogglePin(GPIOC, LL_GPIO_PIN_13);
+		uint16_t newCPR = TIM4->CNT + AddCPRTime - 1;
+		TIM4->CCR2 = newCPR;
+		LL_TIM_ClearFlag_CC2(TIM4);
+
+	}
   /* USER CODE END TIM4_IRQn 0 */
   /* USER CODE BEGIN TIM4_IRQn 1 */
-	LL_TIM_ClearFlag_UPDATE(TIM4);
 
   /* USER CODE END TIM4_IRQn 1 */
 }
@@ -318,18 +319,18 @@ void EXTI15_10_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-void SetServoCompare(float ServoNewVal)
-{
 
-		ServoCompareValue = ServoNewVal;
-//		ServoCountValue = 0;
-
-
-}
 
 uint32_t millis()
 {
 	return RunTimeMillis;
+}
+
+void OC2_IT_Setmillis(float newTime)
+{
+	AddCPRTime = newTime * 3000;
+	TIM4->CNT = 0;
+	TIM4->CCR2 = AddCPRTime;
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

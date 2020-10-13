@@ -65,7 +65,6 @@ extern uint16_t Sensor_Threshold[8];
 extern uint8_t LineDectect;
 extern uint8_t GetThreshold_Flag;
 
-extern uint16_t ServoCountValue;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -82,8 +81,8 @@ extern uint16_t ServoCountValue;
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-void SetServoCompare(float ServoNewVal);
-uint32_t millis();
+
+void OC2_IT_Setmillis(float newTime);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

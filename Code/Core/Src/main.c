@@ -172,7 +172,7 @@ int main(void)
   MotorL_SetPWM(0);
   MotorR_SetPWM(0);
   Servo_SetAngle(0);
-
+  OC2_IT_Setmillis(2.5);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -183,12 +183,10 @@ int main(void)
   while (1)
   {
 	  LineDetect = 0;
-	  Sensor_Convert_A2D();
-	  Sensor_Print_Thres();
-	  Sensor_PrintValue();
-	  Sensor_Print_LineDetect();
-
-	  LL_mDelay(2);
+//	  Sensor_Convert_A2D();
+//	  Sensor_Print_Thres();
+//	  Sensor_PrintValue();
+//	  Sensor_Print_LineDetect();
 
 	  if(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000)
 	  {
@@ -198,6 +196,7 @@ int main(void)
 		  Servo_SetAngle(0);
 		  continue;
 	  }
+
 
 //	  if(LineDetect == 0xFF)
 //	  {
@@ -656,7 +655,7 @@ static void MX_TIM2_Init(void)
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* TIM2 interrupt Init */
-  NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
+  NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),2, 0));
   NVIC_EnableIRQ(TIM2_IRQn);
 
   /* USER CODE BEGIN TIM2_Init 1 */
@@ -683,10 +682,9 @@ static void MX_TIM2_Init(void)
 //  LL_TIM_CC_EnableChannel(TIM2,LL_TIM_CHANNEL_CH1);
 //  LL_TIM_CC_EnableChannel(TIM2,LL_TIM_CHANNEL_CH2);
   LL_TIM_SetCounter(TIM2,0);
-  LL_TIM_EnableCounter(TIM2);
   LL_TIM_ClearFlag_UPDATE(TIM2);
   LL_TIM_EnableIT_UPDATE(TIM2);
-
+  LL_TIM_EnableCounter(TIM2);
   /* USER CODE END TIM2_Init 2 */
 
 }
@@ -720,7 +718,7 @@ static void MX_TIM3_Init(void)
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* TIM3 interrupt Init */
-  NVIC_SetPriority(TIM3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
+  NVIC_SetPriority(TIM3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),2, 0));
   NVIC_EnableIRQ(TIM3_IRQn);
 
   /* USER CODE BEGIN TIM3_Init 1 */
@@ -765,6 +763,7 @@ static void MX_TIM4_Init(void)
   /* USER CODE END TIM4_Init 0 */
 
   LL_TIM_InitTypeDef TIM_InitStruct = {0};
+  LL_TIM_OC_InitTypeDef TIM_OC_InitStruct = {0};
 
   /* Peripheral clock enable */
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
@@ -776,20 +775,44 @@ static void MX_TIM4_Init(void)
   /* USER CODE BEGIN TIM4_Init 1 */
 
   /* USER CODE END TIM4_Init 1 */
-  TIM_InitStruct.Prescaler = 1;
+  TIM_InitStruct.Prescaler = 24;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct.Autoreload = 36;
+  TIM_InitStruct.Autoreload = 59999;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   LL_TIM_Init(TIM4, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM4);
   LL_TIM_SetClockSource(TIM4, LL_TIM_CLOCKSOURCE_INTERNAL);
+  LL_TIM_OC_EnablePreload(TIM4, LL_TIM_CHANNEL_CH1);
+  TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM1;
+  TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
+  TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
+  TIM_OC_InitStruct.CompareValue = 4500;
+  TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
+  LL_TIM_OC_Init(TIM4, LL_TIM_CHANNEL_CH1, &TIM_OC_InitStruct);
+  LL_TIM_OC_DisableFast(TIM4, LL_TIM_CHANNEL_CH1);
+  TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_FROZEN;
+  TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
+  TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
+  LL_TIM_OC_Init(TIM4, LL_TIM_CHANNEL_CH2, &TIM_OC_InitStruct);
+  LL_TIM_OC_DisableFast(TIM4, LL_TIM_CHANNEL_CH2);
   LL_TIM_SetTriggerOutput(TIM4, LL_TIM_TRGO_RESET);
   LL_TIM_DisableMasterSlaveMode(TIM4);
+  LL_TIM_OC_DisablePreload(TIM4, LL_TIM_CHANNEL_CH1);
   /* USER CODE BEGIN TIM4_Init 2 */
+
   LL_TIM_EnableIT_UPDATE(TIM4);
+  LL_TIM_ClearFlag_UPDATE(TIM4);
+
+  LL_TIM_EnableIT_CC1(TIM4);
+  LL_TIM_ClearFlag_CC1(TIM4);
+//
+  LL_TIM_EnableIT_CC2(TIM4);
+  LL_TIM_ClearFlag_CC2(TIM4);
+
+
   LL_TIM_SetCounter(TIM4,0);
-    LL_TIM_EnableCounter(TIM4);
-    LL_TIM_ClearFlag_UPDATE(TIM4);
+  LL_TIM_EnableCounter(TIM4);
+
 
   /* USER CODE END TIM4_Init 2 */
 
@@ -832,7 +855,7 @@ static void MX_USART1_UART_Init(void)
   LL_GPIO_AF_EnableRemap_USART1();
 
   /* USART1 interrupt Init */
-  NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
+  NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),2, 0));
   NVIC_EnableIRQ(USART1_IRQn);
 
   /* USER CODE BEGIN USART1_Init 1 */
@@ -964,7 +987,7 @@ static void MX_GPIO_Init(void)
   LL_GPIO_SetPinMode(GPIOB, LL_GPIO_PIN_14, LL_GPIO_MODE_FLOATING);
 
   /* EXTI interrupt init*/
-  NVIC_SetPriority(EXTI15_10_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
+  NVIC_SetPriority(EXTI15_10_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),2, 0));
   NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
