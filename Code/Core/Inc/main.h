@@ -64,7 +64,8 @@ extern "C" {
 extern uint16_t Sensor_Threshold[8];
 extern uint8_t LineDectect;
 extern uint8_t GetThreshold_Flag;
-
+extern uint8_t BTN2_Flag;
+extern uint8_t BTN3_Flag;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

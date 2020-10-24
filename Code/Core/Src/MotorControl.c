@@ -84,8 +84,7 @@ void Servo_SetAngle(float ServoAngle)
 	if (ServoAngle > 90) ServoAngle = 90;
 	else if (ServoAngle < -90) ServoAngle = -90;
 //	uint16_t ServoCPR = 540 + ServoAngle*2;
-	LL_TIM_OC_SetCompareCH1(TIM4, 4500 + ServoAngle*50/3);
-	LL_TIM_SetCounter(TIM4, 0);
+	LL_TIM_OC_SetCompareCH1(TIM4, 4600 + ServoAngle*50/3);
 }
 
 //void Sensor_SetThresHold(uint16_t newThres[])

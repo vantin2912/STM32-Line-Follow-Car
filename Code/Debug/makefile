@@ -43,11 +43,15 @@ Line\ Following.bin \
 
 
 # All Target
-all: Line\ Following.elf secondary-outputs
+all:
+	+@make --no-print-directory pre-build && make --no-print-directory main-build
+
+# Main-build Target
+main-build: Line\ Following.elf secondary-outputs
 
 # Tool invocations
 Line\ Following.elf: $(OBJS) $(USER_OBJS) E:\Project\stm32-line-following\Code\STM32F103C8TX_FLASH.ld
-	arm-none-eabi-gcc -o "Line Following.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"E:\Project\stm32-line-following\Code\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Line Following.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "Line Following.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"E:\Project\stm32-line-following\Code\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Line Following.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -71,9 +75,13 @@ clean:
 	-$(RM) *
 	-@echo ' '
 
+pre-build:
+	-u _printf_float
+	-@echo ' '
+
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_BIN)
 
 .PHONY: all clean dependents
-.SECONDARY:
+.SECONDARY: main-build pre-build
 
 -include ../makefile.targets

@@ -45,6 +45,8 @@
 volatile uint32_t RunTimeMillis = 0;
 
 uint16_t AddCPRTime = 0;
+uint8_t BTN2_Flag = 0;
+uint8_t BTN3_Flag = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -258,7 +260,7 @@ void TIM4_IRQHandler(void)
 	}
 	if(LL_TIM_IsActiveFlag_CC2(TIM4))
 	{
-		LL_GPIO_TogglePin(GPIOC, LL_GPIO_PIN_13);
+//		LL_GPIO_TogglePin(GPIOC, LL_GPIO_PIN_13);
 		uint16_t newCPR = TIM4->CNT + AddCPRTime - 1;
 		TIM4->CCR2 = newCPR;
 		LL_TIM_ClearFlag_CC2(TIM4);
@@ -303,14 +305,14 @@ void EXTI15_10_IRQHandler(void)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13);
     /* USER CODE BEGIN LL_EXTI_LINE_13 */
-
+    BTN2_Flag = 1;
     /* USER CODE END LL_EXTI_LINE_13 */
   }
   if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_14) != RESET)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_14);
     /* USER CODE BEGIN LL_EXTI_LINE_14 */
-
+    BTN3_Flag = 1;
     /* USER CODE END LL_EXTI_LINE_14 */
   }
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */

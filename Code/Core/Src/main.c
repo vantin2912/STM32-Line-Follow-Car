@@ -43,12 +43,16 @@
 
 #define ChuyenLaneTrai -1
 #define ChuyenLanePhai 1
+
+#define BTN_Servo_Step 0.6;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 #define sbi(Reg, Bit) (Reg |= (1<<Bit))
 #define cbi(Reg, Bit) (Reg &= ~(1<<Bit))
+
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -67,7 +71,9 @@ uint8_t PrevLine = 0;
 uint8_t LineDetect = 0;
 int8_t CarState = 0;
 
-int8_t ChuyenLaneFlag = 0 ;
+int8_t ChuyenLaneFlag = 0;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -172,7 +178,8 @@ int main(void)
   MotorL_SetPWM(0);
   MotorR_SetPWM(0);
   Servo_SetAngle(0);
-  OC2_IT_Setmillis(2.5);
+//  OC2_IT_Setmillis(2.5);
+  float ServoAngle = 0.00;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -183,10 +190,32 @@ int main(void)
   while (1)
   {
 	  LineDetect = 0;
-//	  Sensor_Convert_A2D();
+	  Sensor_Convert_A2D();
 //	  Sensor_Print_Thres();
 //	  Sensor_PrintValue();
 //	  Sensor_Print_LineDetect();
+
+	  if(GetThreshold_Flag == 1)
+	  {
+		  GetThreshold_Flag = 0;
+		  Sensor_Print_LineDetect();
+	  }
+
+	  if(BTN2_Flag == 1)
+	  {
+		  BTN2_Flag = 0;
+		  ServoAngle = ServoAngle - BTN_Servo_Step;
+		  Servo_SetAngle(ServoAngle);
+		  printf("Servo Angle: %g  \n", ServoAngle);
+	  }
+
+	  if(BTN3_Flag == 1)
+	  {
+		  BTN3_Flag = 0;
+		  ServoAngle = ServoAngle + BTN_Servo_Step;
+		  Servo_SetAngle(ServoAngle);
+		  printf("Servo Angle: %g \n", ServoAngle);
+	  }
 
 	  if(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000)
 	  {
@@ -250,35 +279,76 @@ int main(void)
 	  {
 		  switch (LineDetect)
 		  {
+	  	  	  case 0b11000000:
+	  	  	  		MotorR_SetPWM(MaxSpeed * 0.95);
+	  	  	  	  	MotorL_SetPWM(MaxSpeed * 1);
+	  	  	  		Servo_SetAngle(9);// 60
+//	  	  	  		MotorR_SetPWM(MaxSpeed * 0.55);
+//	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.80);
+//	  	  	  		Servo_SetAngle(60);// 9
+	  	  	  	  	break;
+	  	  	  case 0b10000000:
+	  	  	  		MotorR_SetPWM(MaxSpeed * 0.85);
+	  	  	  	  	MotorL_SetPWM(MaxSpeed * 1);
+	  	  	  		Servo_SetAngle(24);// 54
+//	  	  	  		MotorR_SetPWM(MaxSpeed * 0.60);
+//	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.85);
+//	  	  	  		Servo_SetAngle(54);// 54
+	  	  	  	  	break;
+	  	  	  case 0b00000000:
+	  	  	  		MotorR_SetPWM(MaxSpeed * 0.97);
+	  	  	  	  	MotorL_SetPWM(MaxSpeed * 1);
+	  	  	  		Servo_SetAngle(7);// 43
+//	  	  	  		MotorR_SetPWM(MaxSpeed * 0.65);
+//	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.85);
+//	  	  	  		Servo_SetAngle(43);// 43
+	  	  	  	  	break;
 			  case	0b00000001:
-				  MotorR_SetPWM(MaxSpeed * 0.60);
-				  MotorL_SetPWM(MaxSpeed * 0.85);
-				  Servo_SetAngle(54);
+				  MotorR_SetPWM(MaxSpeed * 0.95);
+				  MotorL_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(8);// 37
+//				  MotorR_SetPWM(MaxSpeed * 0.60);
+//				  MotorL_SetPWM(MaxSpeed * 0.85);
+//				  Servo_SetAngle(37);// 37
 				  break;
 			  case 0b00000011:
-				  MotorR_SetPWM(MaxSpeed * 0.75);
-				  MotorL_SetPWM(MaxSpeed * 0.9);
-				  Servo_SetAngle(36);
+				  MotorR_SetPWM(MaxSpeed * 0.96);
+				  MotorL_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(7); //26
+//				  MotorR_SetPWM(MaxSpeed * 0.75);
+//				  MotorL_SetPWM(MaxSpeed * 0.9);
+//				  Servo_SetAngle(26); //26
 				  break;
 			  case 0b00000111:
-				  MotorR_SetPWM(MaxSpeed * 0.84);
+				  MotorR_SetPWM(MaxSpeed * 0.93);
 				  MotorL_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(18);
+				  Servo_SetAngle(10); // 18
+//				  MotorR_SetPWM(MaxSpeed * 0.84);
+//				  MotorL_SetPWM(MaxSpeed * 1);
+//				  Servo_SetAngle(18); // 18
 				  break;
 			  case 0b00001110:
-				  MotorR_SetPWM(MaxSpeed * 0.87);
+				  MotorR_SetPWM(MaxSpeed * 0.96);
 				  MotorL_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(18);
+				  Servo_SetAngle(7.5); //11
+//				  MotorR_SetPWM(MaxSpeed * 0.87);
+//				  MotorL_SetPWM(MaxSpeed * 1);
+//				  Servo_SetAngle(11); //11
 				  break;
 			  case 0b00001100:
-				  MotorR_SetPWM(MaxSpeed * 0.9);
+				  MotorR_SetPWM(MaxSpeed * 0.95);
 				  MotorL_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(0);
+				  Servo_SetAngle(6);
+				  break;
+			  case 0b00001000:
+				  MotorL_SetPWM(MaxSpeed * 0.98);
+				  MotorR_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(0.6);
 				  break;
 //			  case 0b00011100:
 //				  MotorR_SetPWM(MaxSpeed * 0.95);
 //				  MotorL_SetPWM(MaxSpeed * 1);
-//				  Servo_SetAngle(0);
+//				  Servo_SetAngle(4);
 		  }
 		  continue;
 	  }
@@ -286,30 +356,74 @@ int main(void)
 	  {
 		  switch (LineDetect)
 		  {
-			  case	0b10000000:
-				  MotorL_SetPWM(MaxSpeed * 0.60);
-				  MotorR_SetPWM(MaxSpeed * 0.85);
-				  Servo_SetAngle(-54);
+			  case 0b00000011:
+				MotorL_SetPWM(MaxSpeed * 0.95);
+				MotorR_SetPWM(MaxSpeed * 1);
+				Servo_SetAngle(-9);// 60
+	//			MotorR_SetPWM(MaxSpeed * 0.55);
+	//			MotorL_SetPWM(MaxSpeed * 0.80);
+	//			Servo_SetAngle(60);// 9
+				break;
+			  case	0b00000001:
+				  MotorL_SetPWM(MaxSpeed * 0.93);
+				  MotorR_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(-11); // -54
+//				  MotorL_SetPWM(MaxSpeed * 0.60);
+//				  MotorR_SetPWM(MaxSpeed * 0.85);
+//				  Servo_SetAngle(-54); // -54
+				  break;
+			  case 0b00000000:
+				  MotorL_SetPWM(MaxSpeed * 0.93);
+				  MotorR_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(-44.4); // -44.4
+//				  MotorL_SetPWM(MaxSpeed * 0.65);
+//				  MotorR_SetPWM(MaxSpeed * 0.80);
+//				  Servo_SetAngle(-44.4); // -44.4
+					break;
+			  case 0b10000000:
+				  MotorL_SetPWM(MaxSpeed * 0.93);
+				  MotorR_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(-7.5); //-24
+//				  MotorL_SetPWM(MaxSpeed * 0.75);
+//				  MotorR_SetPWM(MaxSpeed * 0.9);
+//				  Servo_SetAngle(-24); //-24
 				  break;
 			  case 0b11000000:
-				  MotorL_SetPWM(MaxSpeed * 0.75);
-				  MotorR_SetPWM(MaxSpeed * 0.9);
-				  Servo_SetAngle(-36);
+				  MotorL_SetPWM(MaxSpeed * 0.96);
+				  MotorR_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(-6.6); //-24
+//				  MotorL_SetPWM(MaxSpeed * 0.75);
+//				  MotorR_SetPWM(MaxSpeed * 0.9);
+//				  Servo_SetAngle(-24); //-24
 				  break;
 			  case 0b11100000:
-				  MotorL_SetPWM(MaxSpeed * 0.84);
+				  MotorL_SetPWM(MaxSpeed * 0.90);
 				  MotorR_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(-18);
+				  Servo_SetAngle(-11); // -21
+//				  MotorL_SetPWM(MaxSpeed * 0.84);
+//				  MotorR_SetPWM(MaxSpeed * 1);
+//				  Servo_SetAngle(-21); // -21
 				  break;
 			  case 0b01110000:
-				  MotorL_SetPWM(MaxSpeed * 0.87);
+				  MotorL_SetPWM(MaxSpeed * 0.97);
 				  MotorR_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(-18);
+				  Servo_SetAngle(-4); // -11
+//				  MotorL_SetPWM(MaxSpeed * 0.87);
+//				  MotorR_SetPWM(MaxSpeed * 1);
+//				  Servo_SetAngle(-11); // -11
 				  break;
 			  case 0b00110000:
-				  MotorL_SetPWM(MaxSpeed * 0.9);
+				  MotorL_SetPWM(MaxSpeed * 0.96);
 				  MotorR_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(-0);
+				  Servo_SetAngle(-7.4); // -9
+//				  MotorL_SetPWM(MaxSpeed * 0.9);
+//				  MotorR_SetPWM(MaxSpeed * 1);
+//				  Servo_SetAngle(-9); // -9
+				  break;
+			  case 0b00010000:
+				  MotorL_SetPWM(MaxSpeed * 0.98);
+				  MotorR_SetPWM(MaxSpeed * 1);
+				  Servo_SetAngle(-0.6);
 				  break;
 //			  case 0b00111000:
 //				  MotorL_SetPWM(MaxSpeed * 0.95);
@@ -318,7 +432,6 @@ int main(void)
 		  }
 		  continue;
 	  }
-//	  LL_mDelay(200);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -777,7 +890,7 @@ static void MX_TIM4_Init(void)
   /* USER CODE END TIM4_Init 1 */
   TIM_InitStruct.Prescaler = 24;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct.Autoreload = 59999;
+  TIM_InitStruct.Autoreload = 60000;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   LL_TIM_Init(TIM4, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM4);
@@ -1068,13 +1181,13 @@ void Sensor_PrintValue()
 
 void Sensor_Print_LineDetect()
 {
-	if(PrevLine != LineDetect)
-	{
+//	if(PrevLine != LineDetect)
+//	{
 		char buffer[8];
 		itoa (LineDetect,buffer,2);
 		printf ("binary: %s\n",buffer);
 		PrevLine = LineDetect;
-	}
+//	}
 
 }
 
