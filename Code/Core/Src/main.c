@@ -280,60 +280,39 @@ int main(void)
 		  switch (LineDetect)
 		  {
 	  	  	  case 0b11000000:
-	  	  	  		MotorR_SetPWM(MaxSpeed * 0.95);
-	  	  	  	  	MotorL_SetPWM(MaxSpeed * 1);
-	  	  	  		Servo_SetAngle(9);// 60
-//	  	  	  		MotorR_SetPWM(MaxSpeed * 0.55);
-//	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.80);
-//	  	  	  		Servo_SetAngle(60);// 9
+	  	  	  		MotorR_SetPWM(MaxSpeed * 0.55);
+	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.80);
+	  	  	  		Servo_SetAngle(60);// 9
 	  	  	  	  	break;
 	  	  	  case 0b10000000:
-	  	  	  		MotorR_SetPWM(MaxSpeed * 0.85);
-	  	  	  	  	MotorL_SetPWM(MaxSpeed * 1);
-	  	  	  		Servo_SetAngle(24);// 54
-//	  	  	  		MotorR_SetPWM(MaxSpeed * 0.60);
-//	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.85);
-//	  	  	  		Servo_SetAngle(54);// 54
+	  	  	  		MotorR_SetPWM(MaxSpeed * 0.60);
+	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.85);
+	  	  	  		Servo_SetAngle(54);// 54
 	  	  	  	  	break;
 	  	  	  case 0b00000000:
-	  	  	  		MotorR_SetPWM(MaxSpeed * 0.97);
-	  	  	  	  	MotorL_SetPWM(MaxSpeed * 1);
-	  	  	  		Servo_SetAngle(7);// 43
-//	  	  	  		MotorR_SetPWM(MaxSpeed * 0.65);
-//	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.85);
-//	  	  	  		Servo_SetAngle(43);// 43
+	  	  	  		MotorR_SetPWM(MaxSpeed * 0.65);
+	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.85);
+	  	  	  		Servo_SetAngle(43);// 43
 	  	  	  	  	break;
 			  case	0b00000001:
-				  MotorR_SetPWM(MaxSpeed * 0.95);
-				  MotorL_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(8);// 37
-//				  MotorR_SetPWM(MaxSpeed * 0.60);
-//				  MotorL_SetPWM(MaxSpeed * 0.85);
-//				  Servo_SetAngle(37);// 37
+				  MotorR_SetPWM(MaxSpeed * 0.60);
+				  MotorL_SetPWM(MaxSpeed * 0.85);
+				  Servo_SetAngle(37);// 37
 				  break;
 			  case 0b00000011:
-				  MotorR_SetPWM(MaxSpeed * 0.96);
-				  MotorL_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(7); //26
-//				  MotorR_SetPWM(MaxSpeed * 0.75);
-//				  MotorL_SetPWM(MaxSpeed * 0.9);
-//				  Servo_SetAngle(26); //26
+				  MotorR_SetPWM(MaxSpeed * 0.75);
+				  MotorL_SetPWM(MaxSpeed * 0.9);
+				  Servo_SetAngle(26); //26
 				  break;
 			  case 0b00000111:
-				  MotorR_SetPWM(MaxSpeed * 0.93);
+				  MotorR_SetPWM(MaxSpeed * 0.84);
 				  MotorL_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(10); // 18
-//				  MotorR_SetPWM(MaxSpeed * 0.84);
-//				  MotorL_SetPWM(MaxSpeed * 1);
-//				  Servo_SetAngle(18); // 18
+				  Servo_SetAngle(18); // 18
 				  break;
 			  case 0b00001110:
-				  MotorR_SetPWM(MaxSpeed * 0.96);
+				  MotorR_SetPWM(MaxSpeed * 0.90);
 				  MotorL_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(7.5); //11
-//				  MotorR_SetPWM(MaxSpeed * 0.87);
-//				  MotorL_SetPWM(MaxSpeed * 1);
-//				  Servo_SetAngle(11); //11
+				  Servo_SetAngle(11); //11
 				  break;
 			  case 0b00001100:
 				  MotorR_SetPWM(MaxSpeed * 0.95);
@@ -357,68 +336,44 @@ int main(void)
 		  switch (LineDetect)
 		  {
 			  case 0b00000011:
-				MotorL_SetPWM(MaxSpeed * 0.95);
-				MotorR_SetPWM(MaxSpeed * 1);
-				Servo_SetAngle(-9);// 60
-	//			MotorR_SetPWM(MaxSpeed * 0.55);
-	//			MotorL_SetPWM(MaxSpeed * 0.80);
-	//			Servo_SetAngle(60);// 9
+				MotorR_SetPWM(MaxSpeed * 0.55);
+				MotorL_SetPWM(MaxSpeed * 0.80);
+				Servo_SetAngle(60);// 9
 				break;
 			  case	0b00000001:
-				  MotorL_SetPWM(MaxSpeed * 0.93);
-				  MotorR_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(-11); // -54
-//				  MotorL_SetPWM(MaxSpeed * 0.60);
-//				  MotorR_SetPWM(MaxSpeed * 0.85);
-//				  Servo_SetAngle(-54); // -54
+				  MotorL_SetPWM(MaxSpeed * 0.60);
+				  MotorR_SetPWM(MaxSpeed * 0.85);
+				  Servo_SetAngle(-54); // -54
 				  break;
 			  case 0b00000000:
-				  MotorL_SetPWM(MaxSpeed * 0.93);
-				  MotorR_SetPWM(MaxSpeed * 1);
+				  MotorL_SetPWM(MaxSpeed * 0.70);
+				  MotorR_SetPWM(MaxSpeed * 0.80);
 				  Servo_SetAngle(-44.4); // -44.4
-//				  MotorL_SetPWM(MaxSpeed * 0.65);
-//				  MotorR_SetPWM(MaxSpeed * 0.80);
-//				  Servo_SetAngle(-44.4); // -44.4
 					break;
 			  case 0b10000000:
-				  MotorL_SetPWM(MaxSpeed * 0.93);
-				  MotorR_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(-7.5); //-24
-//				  MotorL_SetPWM(MaxSpeed * 0.75);
-//				  MotorR_SetPWM(MaxSpeed * 0.9);
-//				  Servo_SetAngle(-24); //-24
+				  MotorL_SetPWM(MaxSpeed * 0.8);
+				  MotorR_SetPWM(MaxSpeed * 0.9);
+				  Servo_SetAngle(-35); //-24
 				  break;
 			  case 0b11000000:
-				  MotorL_SetPWM(MaxSpeed * 0.96);
-				  MotorR_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(-6.6); //-24
-//				  MotorL_SetPWM(MaxSpeed * 0.75);
-//				  MotorR_SetPWM(MaxSpeed * 0.9);
-//				  Servo_SetAngle(-24); //-24
+				  MotorL_SetPWM(MaxSpeed * 0.90);
+				  MotorR_SetPWM(MaxSpeed * 0.98);
+				  Servo_SetAngle(-24); //-24
 				  break;
 			  case 0b11100000:
-				  MotorL_SetPWM(MaxSpeed * 0.90);
+				  MotorL_SetPWM(MaxSpeed * 0.84);
 				  MotorR_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(-11); // -21
-//				  MotorL_SetPWM(MaxSpeed * 0.84);
-//				  MotorR_SetPWM(MaxSpeed * 1);
-//				  Servo_SetAngle(-21); // -21
+				  Servo_SetAngle(-21); // -21
 				  break;
 			  case 0b01110000:
-				  MotorL_SetPWM(MaxSpeed * 0.97);
+				  MotorL_SetPWM(MaxSpeed * 0.90);
 				  MotorR_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(-4); // -11
-//				  MotorL_SetPWM(MaxSpeed * 0.87);
-//				  MotorR_SetPWM(MaxSpeed * 1);
-//				  Servo_SetAngle(-11); // -11
+				  Servo_SetAngle(-11); // -11
 				  break;
 			  case 0b00110000:
-				  MotorL_SetPWM(MaxSpeed * 0.96);
+				  MotorL_SetPWM(MaxSpeed * 0.95);
 				  MotorR_SetPWM(MaxSpeed * 1);
-				  Servo_SetAngle(-7.4); // -9
-//				  MotorL_SetPWM(MaxSpeed * 0.9);
-//				  MotorR_SetPWM(MaxSpeed * 1);
-//				  Servo_SetAngle(-9); // -9
+				  Servo_SetAngle(-9); // -9
 				  break;
 			  case 0b00010000:
 				  MotorL_SetPWM(MaxSpeed * 0.98);
