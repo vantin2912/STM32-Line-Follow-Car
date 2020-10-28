@@ -286,8 +286,8 @@ int main(void)
 		  {
 			  FullWhiteFlag = 0;
 			  CarState = LechPhai;
-			  MotorR_SetPWM(MaxSpeed * 0.8);
-			  MotorL_SetPWM(MaxSpeed * 1);
+			  MotorR_SetPWM(MaxSpeed * 0.6);
+			  MotorL_SetPWM(MaxSpeed * 0.6);
 			  Servo_SetAngle(30);
 			  continue;
 		  }
@@ -297,8 +297,8 @@ int main(void)
 		  switch (LineDetect)
 		  {
 	  	  	  case 0b11000000:// 1
-	  	  	  		MotorR_SetPWM(MaxSpeed * 0.65);
-	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.85);
+	  	  	  		MotorR_SetPWM(MaxSpeed * 0.6);
+	  	  	  	  	MotorL_SetPWM(MaxSpeed * 0.8);
 	  	  	  		Servo_SetAngle(70);// 9
 	  	  	  	  	break;
 	  	  	  case 0b10000000: // 2
@@ -358,13 +358,13 @@ int main(void)
 		  switch (LineDetect)
 		  {
 			  case 0b00000011: // 1
-				MotorR_SetPWM(MaxSpeed * 0.65);
-				MotorL_SetPWM(MaxSpeed * 0.85);
+				MotorR_SetPWM(MaxSpeed * 0.6);
+				MotorL_SetPWM(MaxSpeed * 0.8);
 				Servo_SetAngle(-70);// 9
 				break;
 			  case	0b00000001: // 2
 				  MotorL_SetPWM(MaxSpeed * 0.70);
-				  MotorR_SetPWM(MaxSpeed * 0.90);
+				  MotorR_SetPWM(MaxSpeed * 0.85);
 				  Servo_SetAngle(-67); // -54
 				  break;
 				case 0b10000001: // 3
