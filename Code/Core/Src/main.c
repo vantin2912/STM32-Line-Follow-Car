@@ -62,9 +62,9 @@
 
 // Sensor Related Variable
 volatile uint16_t Sensor_ADC_Value[8];
-uint16_t Sensor_Threshold[] = {1800, 1000, 2000, 2000, 1200, 1700, 1600, 2000};
+uint16_t Sensor_Threshold[] = {1700, 1400, 3000, 2200, 1400, 1700, 1600, 2200};
 uint8_t GetThreshold_Flag = 0;
-int8_t MaxAngle = 70;
+//int8_t MaxAngle = 70;
 float ServoAngle = 0.00;
 
 // Motor Related Variable
@@ -200,14 +200,15 @@ int main(void)
 #ifndef NormalRun
     BTN_Process();
     //	  Sensor_Print_Thres();
-	//	  Sensor_PrintValue();
-	//	  Sensor_Print_LineDetect();
+    	  Sensor_PrintValue();
+    	  LL_mDelay(200);
+    //	  Sensor_Print_LineDetect();
 #endif
 
 #ifdef NormalRun
     if (LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000)
     {
-    	MatLineFlag = 0;
+      MatLineFlag = 0;
       CarState = DiThang;
       MotorL_SetPWM(MaxSpeed);
       MotorR_SetPWM(MaxSpeed);
@@ -218,14 +219,14 @@ int main(void)
     if (CarState == DiThang)
     {
       if (LineDetect == 0b10000000 || LineDetect == 0b11000000 ||
-    	LineDetect == 0b11100000 || LineDetect == 0b01110000 ||
-		LineDetect == 0b00110000 || LineDetect == 0b00010000)
+          LineDetect == 0b11100000 || LineDetect == 0b01110000 ||
+          LineDetect == 0b00110000 || LineDetect == 0b00010000)
       {
         CarState = LechPhai;
       }
       else if (LineDetect == 0b00000001 || LineDetect == 0b00000011 ||
                LineDetect == 0b00000111 || LineDetect == 0b00001110 ||
-			   LineDetect == 0b00001100 || LineDetect == 0b00001000)
+               LineDetect == 0b00001100 || LineDetect == 0b00001000)
       {
         CarState = LechTrai;
       }
@@ -249,7 +250,7 @@ int main(void)
       {
         ChuyenLaneFlag = 0;
         MotorR_SetPWM(MaxSpeed * 0.75);
-        MotorL_SetPWM(MaxSpeed * 0.4);
+        MotorL_SetPWM(MaxSpeed * 0.5);
         Servo_SetAngle(-54);
         CarState = LechPhai;
         continue;
@@ -258,7 +259,7 @@ int main(void)
       {
         ChuyenLaneFlag = 0;
         MotorL_SetPWM(MaxSpeed * 0.75);
-        MotorR_SetPWM(MaxSpeed * 0.4);
+        MotorR_SetPWM(MaxSpeed * 0.5);
         Servo_SetAngle(54);
         CarState = LechTrai;
         continue;
@@ -270,15 +271,15 @@ int main(void)
         ChuyenLaneFlag = 0;
         CarState = DiThang;
       }
-
     };
-  if(MatLineFlag == 1)
-  {
-	Car_MatLine_Process();
-  } else
-  {
-	  Car_BamLine_Process();
-  }
+    if (MatLineFlag == 1)
+    {
+      Car_MatLine_Process();
+    }
+    else
+    {
+      Car_BamLine_Process();
+    }
 
 #endif
     /* USER CODE END WHILE */
@@ -1025,172 +1026,179 @@ void Sensor_Print_LineDetect()
 }
 void BTN_Process()
 {
-	if (GetThreshold_Flag == 1)
-	    {
-	      GetThreshold_Flag = 0;
-	      Sensor_Print_LineDetect();
-	    }
+  if (GetThreshold_Flag == 1)
+  {
+    GetThreshold_Flag = 0;
+    Sensor_Print_LineDetect();
+  }
 
-	    if (BTN2_Flag == 1)
-	    {
-	      BTN2_Flag = 0;
-	      ServoAngle = ServoAngle - BTN_Servo_Step;
-	      Servo_SetAngle(ServoAngle);
-	      printf("Servo Angle: %g  \n", ServoAngle);
-	    }
+  if (BTN2_Flag == 1)
+  {
+    BTN2_Flag = 0;
+    ServoAngle = ServoAngle - BTN_Servo_Step;
+    Servo_SetAngle(ServoAngle);
+    printf("Servo Angle: %g  \n", ServoAngle);
+  }
 
-	    if (BTN3_Flag == 1)
-	    {
-	      BTN3_Flag = 0;
-	      ServoAngle = ServoAngle + BTN_Servo_Step;
-	      Servo_SetAngle(ServoAngle);
-	      printf("Servo Angle: %g \n", ServoAngle);
-	    }
+  if (BTN3_Flag == 1)
+  {
+    BTN3_Flag = 0;
+    ServoAngle = ServoAngle + BTN_Servo_Step;
+    Servo_SetAngle(ServoAngle);
+    printf("Servo Angle: %g \n", ServoAngle);
+  }
 }
 void Car_BamLine_Process()
 {
-	if (CarState == LechTrai)
-	{
-	  switch (LineDetect)
-	  {
-	  case 0b11000000: // 1
-		MotorR_SetPWM(MaxSpeed * 0.6);
-		MotorL_SetPWM(MaxSpeed * 0.8);
-		Servo_SetAngle(70); // 9
-		break;
-	  case 0b10000000: // 2
-		MotorR_SetPWM(MaxSpeed * 0.70);
-		MotorL_SetPWM(MaxSpeed * 0.85);
-		Servo_SetAngle(67); // 54
-		break;
-	  case 0b10000001: // 3
-		MotorR_SetPWM(MaxSpeed * 0.78);
-		MotorL_SetPWM(MaxSpeed * 0.9);
-		Servo_SetAngle(57);
-		break;
-	  case 0b00000000: // 4
-		MotorR_SetPWM(MaxSpeed * 0.85);
-		MotorL_SetPWM(MaxSpeed * 0.95);
-		Servo_SetAngle(47); // 43
-		break;
-	  case 0b00000001: // 5
-		MotorR_SetPWM(MaxSpeed * 0.88);
-		MotorL_SetPWM(MaxSpeed * 0.95);
-		Servo_SetAngle(43); // 37
-		break;
-	  case 0b00000011: // 6
-		MotorR_SetPWM(MaxSpeed * 0.85);
-		MotorL_SetPWM(MaxSpeed * 1);
-		Servo_SetAngle(31); //26
-		break;
-	  case 0b00000111: // 7
-		MotorR_SetPWM(MaxSpeed * 0.90);
-		MotorL_SetPWM(MaxSpeed * 1);
-		Servo_SetAngle(23); // 18
-		break;
-	  case 0b00001110: // 8
-		MotorR_SetPWM(MaxSpeed * 0.93);
-		MotorL_SetPWM(MaxSpeed * 1);
-		Servo_SetAngle(13); //11
-		break;
-	  case 0b00001100: //9
-		MotorR_SetPWM(MaxSpeed * 0.95);
-		MotorL_SetPWM(MaxSpeed * 1);
-		Servo_SetAngle(8);
-		break;
-	  case 0b00001000: // 10
-		MotorL_SetPWM(MaxSpeed * 0.98);
-		MotorR_SetPWM(MaxSpeed * 1);
-		Servo_SetAngle(3);
-		break;
-		//			  case 0b00011100:
-		//				  MotorR_SetPWM(MaxSpeed * 0.95);
-		//				  MotorL_SetPWM(MaxSpeed * 1);
-		//				  Servo_SetAngle(4);
-	  }
-	  return;
-	};
-	if (CarState == LechPhai)
-	{
-	  switch (LineDetect)
-	  {
-	  case 0b00000011: // 1
-		MotorR_SetPWM(MaxSpeed * 0.6);
-		MotorL_SetPWM(MaxSpeed * 0.8);
-		Servo_SetAngle(-70); // 9
-		break;
-	  case 0b00000001: // 2
-		MotorL_SetPWM(MaxSpeed * 0.70);
-		MotorR_SetPWM(MaxSpeed * 0.85);
-		Servo_SetAngle(-67); // -54
-		break;
-	  case 0b10000001: // 3
-		MotorR_SetPWM(MaxSpeed * 0.80);
-		MotorL_SetPWM(MaxSpeed * 0.90);
-		Servo_SetAngle(-57); // 54
-		break;
-	  case 0b00000000: // 4
-		MotorL_SetPWM(MaxSpeed * 0.85);
-		MotorR_SetPWM(MaxSpeed * 0.90);
-		Servo_SetAngle(-50); // -44.4
-		break;
-	  case 0b10000000: // 5
-		MotorL_SetPWM(MaxSpeed * 0.83);
-		MotorR_SetPWM(MaxSpeed * 0.95);
-		Servo_SetAngle(-41); //-24
-		break;
-	  case 0b11000000: // 6
-		MotorL_SetPWM(MaxSpeed * 0.87);
-		MotorR_SetPWM(MaxSpeed * 0.95);
-		Servo_SetAngle(-31); //-24
-		break;
-	  case 0b11100000: // 7
-		MotorL_SetPWM(MaxSpeed * 0.90);
-		MotorR_SetPWM(MaxSpeed * 0.95);
-		Servo_SetAngle(-25); // -21
-		break;
-	  case 0b01110000: // 8
-		MotorL_SetPWM(MaxSpeed * 0.87);
-		MotorR_SetPWM(MaxSpeed * 1);
-		Servo_SetAngle(-15); // -11
-		break;
-	  case 0b00110000: //9
-		MotorL_SetPWM(MaxSpeed * 0.90);
-		MotorR_SetPWM(MaxSpeed * 1);
-		Servo_SetAngle(-13); // -9
-		break;
-	  case 0b00010000: // 10
-		MotorL_SetPWM(MaxSpeed * 0.98);
-		MotorR_SetPWM(MaxSpeed * 1);
-		Servo_SetAngle(-3);
-		break;
-		//			  case 0b00111000:
-		//				  MotorL_SetPWM(MaxSpeed * 0.95);
-		//				  MotorR_SetPWM(MaxSpeed * 1);
-		//				  Servo_SetAngle(-0);
-	  }
-	  return;
-	}
+  if (CarState == LechTrai)
+  {
+    switch (LineDetect)
+    {
+    case 0b11000000: // 1
+      MotorR_SetPWM(MaxSpeed * 0.6);
+      MotorL_SetPWM(MaxSpeed * 0.8);
+      Servo_SetAngle(70); // 9
+      break;
+    case 0b10000000: // 2
+      MotorR_SetPWM(MaxSpeed * 0.70);
+      MotorL_SetPWM(MaxSpeed * 0.85);
+      Servo_SetAngle(67); // 54
+      break;
+    case 0b10000001: // 3
+      MotorR_SetPWM(MaxSpeed * 0.78);
+      MotorL_SetPWM(MaxSpeed * 0.9);
+      Servo_SetAngle(57);
+      break;
+    case 0b00000000: // 4
+      MotorR_SetPWM(MaxSpeed * 0.85);
+      MotorL_SetPWM(MaxSpeed * 0.95);
+      Servo_SetAngle(47); // 43
+      break;
+    case 0b00000001: // 5
+      MotorR_SetPWM(MaxSpeed * 0.88);
+      MotorL_SetPWM(MaxSpeed * 0.95);
+      Servo_SetAngle(43); // 37
+      break;
+    case 0b00000011: // 6
+      MotorR_SetPWM(MaxSpeed * 0.85);
+      MotorL_SetPWM(MaxSpeed * 1);
+      Servo_SetAngle(31); //26
+      break;
+    case 0b00000111: // 7
+      MotorR_SetPWM(MaxSpeed * 0.90);
+      MotorL_SetPWM(MaxSpeed * 1);
+      Servo_SetAngle(23); // 18
+      break;
+    case 0b00001110: // 8
+      MotorR_SetPWM(MaxSpeed * 0.93);
+      MotorL_SetPWM(MaxSpeed * 1);
+      Servo_SetAngle(13); //11
+      break;
+    case 0b00001100: //9
+      MotorR_SetPWM(MaxSpeed * 0.95);
+      MotorL_SetPWM(MaxSpeed * 1);
+      Servo_SetAngle(8);
+      break;
+    case 0b00001000: // 10
+      MotorL_SetPWM(MaxSpeed * 0.98);
+      MotorR_SetPWM(MaxSpeed * 1);
+      Servo_SetAngle(3);
+      break;
+      //			  case 0b00011100:
+      //				  MotorR_SetPWM(MaxSpeed * 0.95);
+      //				  MotorL_SetPWM(MaxSpeed * 1);
+      //				  Servo_SetAngle(4);
+    }
+    return;
+  };
+  if (CarState == LechPhai)
+  {
+    switch (LineDetect)
+    {
+    case 0b00000011: // 1
+      MotorR_SetPWM(MaxSpeed * 0.6);
+      MotorL_SetPWM(MaxSpeed * 0.8);
+      Servo_SetAngle(-70); // 9
+      break;
+    case 0b00000001: // 2
+      MotorL_SetPWM(MaxSpeed * 0.70);
+      MotorR_SetPWM(MaxSpeed * 0.85);
+      Servo_SetAngle(-67); // -54
+      break;
+    case 0b10000001: // 3
+      MotorR_SetPWM(MaxSpeed * 0.80);
+      MotorL_SetPWM(MaxSpeed * 0.90);
+      Servo_SetAngle(-57); // 54
+      break;
+    case 0b00000000: // 4
+      MotorL_SetPWM(MaxSpeed * 0.85);
+      MotorR_SetPWM(MaxSpeed * 0.90);
+      Servo_SetAngle(-50); // -44.4
+      break;
+    case 0b10000000: // 5
+      MotorL_SetPWM(MaxSpeed * 0.83);
+      MotorR_SetPWM(MaxSpeed * 0.95);
+      Servo_SetAngle(-41); //-24
+      break;
+    case 0b11000000: // 6
+      MotorL_SetPWM(MaxSpeed * 0.87);
+      MotorR_SetPWM(MaxSpeed * 0.95);
+      Servo_SetAngle(-31); //-24
+      break;
+    case 0b11100000: // 7
+      MotorL_SetPWM(MaxSpeed * 0.90);
+      MotorR_SetPWM(MaxSpeed * 0.95);
+      Servo_SetAngle(-25); // -21
+      break;
+    case 0b01110000: // 8
+      MotorL_SetPWM(MaxSpeed * 0.87);
+      MotorR_SetPWM(MaxSpeed * 1);
+      Servo_SetAngle(-15); // -11
+      break;
+    case 0b00110000: //9
+      MotorL_SetPWM(MaxSpeed * 0.90);
+      MotorR_SetPWM(MaxSpeed * 1);
+      Servo_SetAngle(-13); // -9
+      break;
+    case 0b00010000: // 10
+      MotorL_SetPWM(MaxSpeed * 0.98);
+      MotorR_SetPWM(MaxSpeed * 1);
+      Servo_SetAngle(-3);
+      break;
+      //			  case 0b00111000:
+      //				  MotorL_SetPWM(MaxSpeed * 0.95);
+      //				  MotorR_SetPWM(MaxSpeed * 1);
+      //				  Servo_SetAngle(-0);
+    }
+    return;
+  }
 }
 
 void Car_MatLine_Process()
 {
-	switch(LineDetect)
-	{
-	case 0b00000001:
-	case 0b00000011:
-		MotorL_SetPWM(MaxSpeed);
-		MotorR_SetPWM(MaxSpeed);
-		Servo_SetAngle(-50);
-		break;
-	case 0b10000000:
-	case 0b11000000:
-		MotorR_SetPWM(MaxSpeed);
-		MotorL_SetPWM(MaxSpeed);
-		Servo_SetAngle(50);
-		break;
-	}
-
+  switch (LineDetect)
+  {
+  case 0b00000001:
+	  MotorL_SetPWM(MaxSpeed * 0.5);
+	  MotorR_SetPWM(MaxSpeed * 0.6);
+	  Servo_SetAngle(-42);
+	  break;
+  case 0b00000011:
+    MotorL_SetPWM(MaxSpeed * 0.5);
+    MotorR_SetPWM(MaxSpeed * 0.6);
+    Servo_SetAngle(-35);
+    break;
+  case 0b10000000:
+	  MotorR_SetPWM(MaxSpeed * 0.5);
+	  MotorL_SetPWM(MaxSpeed * 0.6);
+	  Servo_SetAngle(42);
+	  break;
+  case 0b11000000:
+    MotorR_SetPWM(MaxSpeed * 0.5);
+    MotorL_SetPWM(MaxSpeed * 0.6);
+    Servo_SetAngle(35);
+    break;
+  }
 }
 /* USER CODE END 4 */
 
