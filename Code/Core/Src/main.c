@@ -33,7 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define NormalRun
+#define NormalRun 1
 
 #define ADC1_DR_Address ((uint32_t)0x4001244C)
 #define ADC_Sample_Times 50000 // So Lan doc ADC Lay nguong
@@ -43,10 +43,15 @@
 #define LechPhai 1
 #define LechTrai -1
 
-#define ChuyenLaneTrai -1
-#define ChuyenLanePhai 1
+#define HalfLeft -1
+#define HalfRight 1
 
+#define CuaTrai -1
+#define CuaPhai 1
 #define BTN_Servo_Step 0.6;
+
+#define MaximumSpeed 7200
+#define SignalSpeed 2000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -62,7 +67,7 @@
 
 // Sensor Related Variable
 volatile uint16_t Sensor_ADC_Value[8];
-uint16_t Sensor_Threshold[] = {1700, 1400, 3000, 2200, 1400, 1700, 1600, 2200};
+uint16_t Sensor_Threshold[] = {1700, 1800, 3000, 2200, 1600, 1700, 1700, 2300};
 uint8_t GetThreshold_Flag = 0;
 //int8_t MaxAngle = 70;
 float ServoAngle = 0.00;
@@ -73,8 +78,9 @@ uint8_t PrevLine = 0;
 uint8_t LineDetect = 0;
 int8_t CarState = 0;
 
-int8_t ChuyenLaneFlag = 0;
-
+int8_t HalfWhiteFlag = 0;
+int8_t HalfWhiteFlag_Raw = 0;
+int8_t CuaFlag = 0;
 uint8_t FullWhiteFlag = 0;
 uint8_t MatLineFlag = 0;
 /* USER CODE END PV */
@@ -100,6 +106,10 @@ void Sensor_Print_LineDetect();
 void BTN_Process();
 void Car_BamLine_Process();
 void Car_MatLine_Process();
+void Car_ChuyenLanePhai_Process();
+void Car_ChuyenLaneTrai_Process();
+void Car_CuaPhai_Process();
+void Car_CuaTrai_Process();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -136,19 +146,19 @@ int main(void)
 
   /* System interrupt init*/
   /* MemoryManagement_IRQn interrupt configuration */
-  NVIC_SetPriority(MemoryManagement_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 0));
+  NVIC_SetPriority(MemoryManagement_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
   /* BusFault_IRQn interrupt configuration */
-  NVIC_SetPriority(BusFault_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 0));
+  NVIC_SetPriority(BusFault_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
   /* UsageFault_IRQn interrupt configuration */
-  NVIC_SetPriority(UsageFault_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 0));
+  NVIC_SetPriority(UsageFault_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
   /* SVCall_IRQn interrupt configuration */
-  NVIC_SetPriority(SVCall_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 0));
+  NVIC_SetPriority(SVCall_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
   /* DebugMonitor_IRQn interrupt configuration */
-  NVIC_SetPriority(DebugMonitor_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 0));
+  NVIC_SetPriority(DebugMonitor_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
   /* PendSV_IRQn interrupt configuration */
-  NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 0));
+  NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
   /* SysTick_IRQn interrupt configuration */
-  NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 0));
+  NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
 
   /** NOJTAG: JTAG-DP Disabled and SW-DP Enabled
   */
@@ -194,20 +204,42 @@ int main(void)
 
   while (1)
   {
-    LineDetect = 0;
     Sensor_Convert_A2D();
 
-#ifndef NormalRun
+#if NormalRun == 0
     BTN_Process();
     //	  Sensor_Print_Thres();
-    	  Sensor_PrintValue();
-    	  LL_mDelay(200);
+//    	  Sensor_PrintValue();
+//    	  LL_mDelay(200);
     //	  Sensor_Print_LineDetect();
 #endif
 
-#ifdef NormalRun
+#if NormalRun == 1
+//    printf("HalfWhiteFlag: %i ", HalfWhiteFlag);
+//    printf("HalfWhiteFlag_Raw: %i ", HalfWhiteFlag_Raw);
+//    printf("FullWhiteFlag: %i ", FullWhiteFlag);
+//    printf("CuaFlag: %i ", CuaFlag);
+//    printf("MatLineFlag: %i \n", MatLineFlag);
+
+    if(HalfWhiteFlag != 0 || FullWhiteFlag != 0 || MatLineFlag!= 0 || CuaFlag != 0)
+    {
+    	MaxSpeed = SignalSpeed;
+    }
+    else {
+    	MaxSpeed = MaximumSpeed;
+    }
     if (LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000)
     {
+    	if(HalfWhiteFlag_Raw == HalfLeft)
+    	{
+    		HalfWhiteFlag_Raw = 0;
+    		HalfWhiteFlag = HalfLeft;
+    	}else if(HalfWhiteFlag_Raw == HalfRight)
+		{
+    		HalfWhiteFlag_Raw = 0;
+			HalfWhiteFlag = HalfRight;
+		}
+
       MatLineFlag = 0;
       CarState = DiThang;
       MotorL_SetPWM(MaxSpeed);
@@ -215,7 +247,6 @@ int main(void)
       Servo_SetAngle(0);
       continue;
     }
-
     if (CarState == DiThang)
     {
       if (LineDetect == 0b10000000 || LineDetect == 0b11000000 ||
@@ -231,44 +262,113 @@ int main(void)
         CarState = LechTrai;
       }
     }
+    if (LineDetect == 0b01111111 || LineDetect == 0b00111111 || LineDetect == 0b00011111)
+    {
+//    	while(!(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000))
+//    	{
+//    		Sensor_Convert_A2D();
+//    	}
+    	if(FullWhiteFlag == 1)
+    	{
+//    		CuaFlag = CuaPhai;
+    		FullWhiteFlag = 0;
+    		while(LineDetect != 0)
+    		{
+    			Sensor_Convert_A2D();
+    		}
 
-    if (LineDetect == 0b01111111 || LineDetect == 0b00111111 || LineDetect == 0b00011111 || LineDetect == 0b00001111)
-    {
-      ChuyenLaneFlag = ChuyenLanePhai;
+    		Car_CuaPhai_Process();
+    	}
+    	else if(CuaFlag == 0)
+    	{
+    		HalfWhiteFlag_Raw = HalfRight;
+    		continue;
+    	}
     }
-    else if (LineDetect == 0b11110000 || LineDetect == 0b11111000 || LineDetect == 0b11111100 || LineDetect == 0b11111110)
+    else if ( LineDetect == 0b11111000 || LineDetect == 0b11111100 || LineDetect == 0b11111110)
     {
-      ChuyenLaneFlag = ChuyenLaneTrai;
+
+		if(FullWhiteFlag == 1)
+		{
+//			CuaFlag = CuaTrai;
+			FullWhiteFlag = 0;
+			HalfWhiteFlag = 0;
+			while(LineDetect != 0)
+			{
+				Sensor_Convert_A2D();
+			}
+			Car_CuaTrai_Process();
+//			CuaFlag = 0;
+		}
+		else if(CuaFlag == 0)
+		{
+			HalfWhiteFlag_Raw = HalfLeft;
+			continue;
+		}
     }
-    else if (LineDetect == 0xFF)
+    else if (LineDetect == 0xff)
     {
-      FullWhiteFlag = 1;
+    	while(!(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000 || LineDetect == 0))
+    		Sensor_Convert_A2D();
+//    	LL_mDelay(1);
+    	if(HalfWhiteFlag == HalfLeft)
+    	{
+    		HalfWhiteFlag = 0;
+    		FullWhiteFlag = 0;
+    		MatLineFlag = 0;
+    		HalfWhiteFlag_Raw = 0;
+			Car_CuaTrai_Process();
+			CuaFlag = 0;
+    	} else if (HalfWhiteFlag == HalfRight)
+    	{
+    		HalfWhiteFlag = 0;
+			FullWhiteFlag = 0;
+			MatLineFlag = 0;
+			HalfWhiteFlag_Raw = 0;
+			Car_CuaPhai_Process();
+			CuaFlag = 0;
+    	}
+    	else
+    	{
+    		HalfWhiteFlag_Raw = 0;
+    		 HalfWhiteFlag = 0;
+    		 FullWhiteFlag = 1;
+    		 continue;
+    	}
     }
-    if (LineDetect == 0)
+    else if (LineDetect == 0)
     {
-      if (ChuyenLaneFlag == ChuyenLaneTrai)
+      if (HalfWhiteFlag == HalfLeft)
       {
-        ChuyenLaneFlag = 0;
-        MotorR_SetPWM(MaxSpeed * 0.75);
-        MotorL_SetPWM(MaxSpeed * 0.5);
-        Servo_SetAngle(-54);
-        CarState = LechPhai;
+        HalfWhiteFlag = 0;
+        Car_ChuyenLaneTrai_Process();
         continue;
       }
-      else if (ChuyenLaneFlag == ChuyenLanePhai)
+      else if (HalfWhiteFlag == HalfRight)
       {
-        ChuyenLaneFlag = 0;
-        MotorL_SetPWM(MaxSpeed * 0.75);
-        MotorR_SetPWM(MaxSpeed * 0.5);
-        Servo_SetAngle(54);
-        CarState = LechTrai;
+        HalfWhiteFlag = 0;
+        Car_ChuyenLanePhai_Process();
         continue;
       }
+//      else if (CuaFlag == CuaTrai)
+//      {
+//    	  Car_CuaTrai_Process();
+//    	  CuaFlag = 0;
+//    	  continue;
+//      }else if(CuaFlag == CuaPhai)
+//      {
+//    	  Car_CuaPhai_Process();
+//    	  CuaFlag = 0;
+//    	  continue;
+//      }
       else if (FullWhiteFlag == 1)
       {
         FullWhiteFlag = 0;
         MatLineFlag = 1;
-        ChuyenLaneFlag = 0;
+        HalfWhiteFlag = 0;
+        MotorL_SetPWM(MaxSpeed * 1.5);
+        MotorR_SetPWM(MaxSpeed * 1.5);
+        Servo_SetAngle(-12);
         CarState = DiThang;
       }
     };
@@ -280,7 +380,6 @@ int main(void)
     {
       Car_BamLine_Process();
     }
-
 #endif
     /* USER CODE END WHILE */
 
@@ -296,30 +395,33 @@ int main(void)
 void SystemClock_Config(void)
 {
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
-  while (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_2)
+  while(LL_FLASH_GetLatency()!= LL_FLASH_LATENCY_2)
   {
   }
   LL_RCC_HSE_Enable();
 
-  /* Wait till HSE is ready */
-  while (LL_RCC_HSE_IsReady() != 1)
+   /* Wait till HSE is ready */
+  while(LL_RCC_HSE_IsReady() != 1)
   {
+
   }
   LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_9);
   LL_RCC_PLL_Enable();
 
-  /* Wait till PLL is ready */
-  while (LL_RCC_PLL_IsReady() != 1)
+   /* Wait till PLL is ready */
+  while(LL_RCC_PLL_IsReady() != 1)
   {
+
   }
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_2);
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
   LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
 
-  /* Wait till System clock is ready */
-  while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
+   /* Wait till System clock is ready */
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
+
   }
   LL_Init1msTick(72000000);
   LL_SetSystemCoreClock(72000000);
@@ -358,7 +460,8 @@ static void MX_ADC1_Init(void)
   PA6   ------> ADC1_IN6
   PA7   ------> ADC1_IN7
   */
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5 | LL_GPIO_PIN_6 | LL_GPIO_PIN_7;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_0|LL_GPIO_PIN_1|LL_GPIO_PIN_2|LL_GPIO_PIN_3
+                          |LL_GPIO_PIN_4|LL_GPIO_PIN_5|LL_GPIO_PIN_6|LL_GPIO_PIN_7;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -401,35 +504,35 @@ static void MX_ADC1_Init(void)
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_1, LL_ADC_CHANNEL_0);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_0, LL_ADC_SAMPLINGTIME_28CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_0, LL_ADC_SAMPLINGTIME_7CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_2, LL_ADC_CHANNEL_1);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_1, LL_ADC_SAMPLINGTIME_28CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_1, LL_ADC_SAMPLINGTIME_7CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_3, LL_ADC_CHANNEL_2);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_2, LL_ADC_SAMPLINGTIME_28CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_2, LL_ADC_SAMPLINGTIME_7CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_4, LL_ADC_CHANNEL_3);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_3, LL_ADC_SAMPLINGTIME_28CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_3, LL_ADC_SAMPLINGTIME_7CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_5, LL_ADC_CHANNEL_4);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_4, LL_ADC_SAMPLINGTIME_28CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_4, LL_ADC_SAMPLINGTIME_7CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_6, LL_ADC_CHANNEL_5);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_5, LL_ADC_SAMPLINGTIME_28CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_5, LL_ADC_SAMPLINGTIME_7CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_7, LL_ADC_CHANNEL_6);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_6, LL_ADC_SAMPLINGTIME_28CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_6, LL_ADC_SAMPLINGTIME_7CYCLES_5);
   /** Configure Regular Channel
   */
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_8, LL_ADC_CHANNEL_7);
-  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_7, LL_ADC_SAMPLINGTIME_28CYCLES_5);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_7, LL_ADC_SAMPLINGTIME_7CYCLES_5);
   /* USER CODE BEGIN ADC1_Init 2 */
 
   LL_ADC_REG_SetDMATransfer(ADC1, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
@@ -446,6 +549,7 @@ static void MX_ADC1_Init(void)
   /* Bat dau chuyen doi ADC */
   LL_ADC_REG_StartConversionSWStart(ADC1);
   /* USER CODE END ADC1_Init 2 */
+
 }
 
 /**
@@ -469,7 +573,7 @@ static void MX_I2C1_Init(void)
   PB8   ------> I2C1_SCL
   PB9   ------> I2C1_SDA
   */
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_8 | LL_GPIO_PIN_9;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_8|LL_GPIO_PIN_9;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
@@ -500,6 +604,7 @@ static void MX_I2C1_Init(void)
   LL_I2C_Enable(I2C1);
 
   /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
@@ -571,11 +676,12 @@ static void MX_TIM1_Init(void)
   PA8   ------> TIM1_CH1
   PA10   ------> TIM1_CH3
   */
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_8 | LL_GPIO_PIN_10;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_8|LL_GPIO_PIN_10;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
 }
 
 /**
@@ -612,7 +718,7 @@ static void MX_TIM2_Init(void)
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* TIM2 interrupt Init */
-  NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 2, 0));
+  NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),2, 0));
   NVIC_EnableIRQ(TIM2_IRQn);
 
   /* USER CODE BEGIN TIM2_Init 1 */
@@ -643,6 +749,7 @@ static void MX_TIM2_Init(void)
   LL_TIM_EnableIT_UPDATE(TIM2);
   LL_TIM_EnableCounter(TIM2);
   /* USER CODE END TIM2_Init 2 */
+
 }
 
 /**
@@ -669,12 +776,12 @@ static void MX_TIM3_Init(void)
   PB4   ------> TIM3_CH1
   PB5   ------> TIM3_CH2
   */
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_4 | LL_GPIO_PIN_5;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_4|LL_GPIO_PIN_5;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_FLOATING;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* TIM3 interrupt Init */
-  NVIC_SetPriority(TIM3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 2, 0));
+  NVIC_SetPriority(TIM3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),2, 0));
   NVIC_EnableIRQ(TIM3_IRQn);
 
   /* USER CODE BEGIN TIM3_Init 1 */
@@ -703,6 +810,7 @@ static void MX_TIM3_Init(void)
   LL_TIM_ClearFlag_UPDATE(TIM3);
   LL_TIM_EnableIT_UPDATE(TIM3);
   /* USER CODE END TIM3_Init 2 */
+
 }
 
 /**
@@ -724,7 +832,7 @@ static void MX_TIM4_Init(void)
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
 
   /* TIM4 interrupt Init */
-  NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+  NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
   NVIC_EnableIRQ(TIM4_IRQn);
 
   /* USER CODE BEGIN TIM4_Init 1 */
@@ -768,6 +876,7 @@ static void MX_TIM4_Init(void)
   LL_TIM_EnableCounter(TIM4);
 
   /* USER CODE END TIM4_Init 2 */
+
 }
 
 /**
@@ -807,7 +916,7 @@ static void MX_USART1_UART_Init(void)
   LL_GPIO_AF_EnableRemap_USART1();
 
   /* USART1 interrupt Init */
-  NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 2, 0));
+  NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),2, 0));
   NVIC_EnableIRQ(USART1_IRQn);
 
   /* USER CODE BEGIN USART1_Init 1 */
@@ -826,6 +935,7 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
+
 }
 
 /**
@@ -840,8 +950,9 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
-  NVIC_SetPriority(DMA1_Channel1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 0));
+  NVIC_SetPriority(DMA1_Channel1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
   NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
 }
 
 /**
@@ -867,7 +978,7 @@ static void MX_GPIO_Init(void)
   LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_15);
 
   /**/
-  LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_9 | LL_GPIO_PIN_11);
+  LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_9|LL_GPIO_PIN_11);
 
   /**/
   GPIO_InitStruct.Pin = LL_GPIO_PIN_13;
@@ -937,8 +1048,9 @@ static void MX_GPIO_Init(void)
   LL_GPIO_SetPinMode(GPIOB, LL_GPIO_PIN_14, LL_GPIO_MODE_FLOATING);
 
   /* EXTI interrupt init*/
-  NVIC_SetPriority(EXTI15_10_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 2, 0));
+  NVIC_SetPriority(EXTI15_10_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),2, 0));
   NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 }
 
 /* USER CODE BEGIN 4 */
@@ -979,16 +1091,13 @@ void GetThreshold()
 }
 void Sensor_Convert_A2D()
 {
+	LineDetect = 0;
   for (int i = 0; i < 8; ++i)
   {
     if (Sensor_ADC_Value[i] < Sensor_Threshold[i])
     {
       sbi(LineDetect, (7 - i));
       //			  printf("1 ");
-    }
-    else
-    {
-      //			  printf("0 ");
     }
   };
   //	printf("\n");
@@ -997,19 +1106,19 @@ void Sensor_Convert_A2D()
 
 void Sensor_Print_Thres()
 {
-  printf("Threshold Val:  ");
+  printf("Threshold Val:\t");
   for (int i = 0; i < 8; ++i)
   {
-    printf("%u ", Sensor_Threshold[i]);
+    printf("%u \t", Sensor_Threshold[i]);
   }
   printf("\n");
 }
 void Sensor_PrintValue()
 {
-  printf("Sensor Val: ");
+  printf("Sensor Val:\t");
   for (int i = 0; i < 8; ++i)
   {
-    printf("%u ", Sensor_ADC_Value[i]);
+    printf("%u \t", Sensor_ADC_Value[i]);
   };
   printf("\n");
 }
@@ -1057,52 +1166,57 @@ void Car_BamLine_Process()
     case 0b11000000: // 1
       MotorR_SetPWM(MaxSpeed * 0.6);
       MotorL_SetPWM(MaxSpeed * 0.8);
-      Servo_SetAngle(70); // 9
+      Servo_SetAngle(73); // 9
       break;
     case 0b10000000: // 2
       MotorR_SetPWM(MaxSpeed * 0.70);
       MotorL_SetPWM(MaxSpeed * 0.85);
-      Servo_SetAngle(67); // 54
+      Servo_SetAngle(64); // 69
       break;
-    case 0b10000001: // 3
-      MotorR_SetPWM(MaxSpeed * 0.78);
-      MotorL_SetPWM(MaxSpeed * 0.9);
-      Servo_SetAngle(57);
-      break;
+//    case 0b10000001: // 3
+//      MotorR_SetPWM(MaxSpeed * 0.8);
+//      MotorL_SetPWM(MaxSpeed * 0.9);
+//      Servo_SetAngle(59);
+//      break;
     case 0b00000000: // 4
-      MotorR_SetPWM(MaxSpeed * 0.85);
+      MotorR_SetPWM(MaxSpeed * 0.80);
       MotorL_SetPWM(MaxSpeed * 0.95);
-      Servo_SetAngle(47); // 43
+      Servo_SetAngle(59); // 43
       break;
     case 0b00000001: // 5
-      MotorR_SetPWM(MaxSpeed * 0.88);
+      MotorR_SetPWM(MaxSpeed * 0.85);
       MotorL_SetPWM(MaxSpeed * 0.95);
-      Servo_SetAngle(43); // 37
+      Servo_SetAngle(40); // 45
       break;
     case 0b00000011: // 6
       MotorR_SetPWM(MaxSpeed * 0.85);
       MotorL_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(31); //26
+      Servo_SetAngle(33); //26
       break;
     case 0b00000111: // 7
       MotorR_SetPWM(MaxSpeed * 0.90);
       MotorL_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(23); // 18
+      Servo_SetAngle(25); // 18
       break;
     case 0b00001110: // 8
       MotorR_SetPWM(MaxSpeed * 0.93);
       MotorL_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(13); //11
+      Servo_SetAngle(20); //11
+      break;
+    case 0b00011100: // 8
+      MotorR_SetPWM(MaxSpeed * 0.93);
+      MotorL_SetPWM(MaxSpeed * 1);
+      Servo_SetAngle(15); //
       break;
     case 0b00001100: //9
       MotorR_SetPWM(MaxSpeed * 0.95);
       MotorL_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(8);
+      Servo_SetAngle(10);
       break;
     case 0b00001000: // 10
       MotorL_SetPWM(MaxSpeed * 0.98);
       MotorR_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(3);
+      Servo_SetAngle(6);
       break;
       //			  case 0b00011100:
       //				  MotorR_SetPWM(MaxSpeed * 0.95);
@@ -1118,52 +1232,57 @@ void Car_BamLine_Process()
     case 0b00000011: // 1
       MotorR_SetPWM(MaxSpeed * 0.6);
       MotorL_SetPWM(MaxSpeed * 0.8);
-      Servo_SetAngle(-70); // 9
+      Servo_SetAngle(-67);// -72
       break;
     case 0b00000001: // 2
       MotorL_SetPWM(MaxSpeed * 0.70);
       MotorR_SetPWM(MaxSpeed * 0.85);
-      Servo_SetAngle(-67); // -54
+      Servo_SetAngle(-62); // -69
       break;
-    case 0b10000001: // 3
-      MotorR_SetPWM(MaxSpeed * 0.80);
-      MotorL_SetPWM(MaxSpeed * 0.90);
-      Servo_SetAngle(-57); // 54
-      break;
+//    case 0b10000001: // 3
+//      MotorR_SetPWM(MaxSpeed * 0.80);
+//      MotorL_SetPWM(MaxSpeed * 0.90);
+//      Servo_SetAngle(-59);
+//      break;
     case 0b00000000: // 4
       MotorL_SetPWM(MaxSpeed * 0.85);
       MotorR_SetPWM(MaxSpeed * 0.90);
-      Servo_SetAngle(-50); // -44.4
+      Servo_SetAngle(-48);
       break;
     case 0b10000000: // 5
       MotorL_SetPWM(MaxSpeed * 0.83);
       MotorR_SetPWM(MaxSpeed * 0.95);
-      Servo_SetAngle(-41); //-24
+      Servo_SetAngle(-43);
       break;
     case 0b11000000: // 6
       MotorL_SetPWM(MaxSpeed * 0.87);
       MotorR_SetPWM(MaxSpeed * 0.95);
-      Servo_SetAngle(-31); //-24
+      Servo_SetAngle(-35);
       break;
     case 0b11100000: // 7
       MotorL_SetPWM(MaxSpeed * 0.90);
       MotorR_SetPWM(MaxSpeed * 0.95);
-      Servo_SetAngle(-25); // -21
+      Servo_SetAngle(-27);
       break;
+    case 0b01100000:
+	 MotorL_SetPWM(MaxSpeed * 0.87);
+	  MotorR_SetPWM(MaxSpeed * 1);
+	  Servo_SetAngle(-24);
+	  break;
     case 0b01110000: // 8
-      MotorL_SetPWM(MaxSpeed * 0.87);
-      MotorR_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(-15); // -11
-      break;
-    case 0b00110000: //9
       MotorL_SetPWM(MaxSpeed * 0.90);
       MotorR_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(-13); // -9
+      Servo_SetAngle(-22);
+      break;
+    case 0b00110000: //9
+      MotorL_SetPWM(MaxSpeed * 0.95);
+      MotorR_SetPWM(MaxSpeed * 1);
+      Servo_SetAngle(-13);
       break;
     case 0b00010000: // 10
       MotorL_SetPWM(MaxSpeed * 0.98);
       MotorR_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(-3);
+      Servo_SetAngle(-5);
       break;
       //			  case 0b00111000:
       //				  MotorL_SetPWM(MaxSpeed * 0.95);
@@ -1178,27 +1297,55 @@ void Car_MatLine_Process()
 {
   switch (LineDetect)
   {
-  case 0b00000001:
-	  MotorL_SetPWM(MaxSpeed * 0.5);
-	  MotorR_SetPWM(MaxSpeed * 0.6);
-	  Servo_SetAngle(-42);
-	  break;
-  case 0b00000011:
-    MotorL_SetPWM(MaxSpeed * 0.5);
-    MotorR_SetPWM(MaxSpeed * 0.6);
-    Servo_SetAngle(-35);
-    break;
   case 0b10000000:
-	  MotorR_SetPWM(MaxSpeed * 0.5);
-	  MotorL_SetPWM(MaxSpeed * 0.6);
-	  Servo_SetAngle(42);
+	  MotorR_SetPWM(MaxSpeed * 1.7);
+	  MotorL_SetPWM(MaxSpeed * 1.8);
+	  Servo_SetAngle(18);
 	  break;
   case 0b11000000:
-    MotorR_SetPWM(MaxSpeed * 0.5);
-    MotorL_SetPWM(MaxSpeed * 0.6);
-    Servo_SetAngle(35);
+    MotorR_SetPWM(MaxSpeed * 1.9);
+    MotorL_SetPWM(MaxSpeed * 1.7);
+    Servo_SetAngle(20);
     break;
+
   }
+}
+void Car_ChuyenLanePhai_Process()
+{
+	MaxSpeed = MaximumSpeed;
+	MotorL_SetPWM(MaxSpeed * 0.70);
+	MotorR_SetPWM(MaxSpeed * 0.5);
+	Servo_SetAngle(50);
+	CarState = LechTrai;
+}
+void Car_ChuyenLaneTrai_Process()
+{
+	MaxSpeed = MaximumSpeed;
+	MotorR_SetPWM(MaxSpeed * 0.6);
+	MotorL_SetPWM(MaxSpeed * 0.5);
+	Servo_SetAngle(-50);
+	CarState = LechPhai;
+}
+void Car_CuaPhai_Process()
+{
+	LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_13);
+	Servo_SetAngle(80);
+	MotorL_SetPWM(MaxSpeed * 1.4);
+	MotorR_SetPWM(MaxSpeed * 1.7);
+	while(!(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000))
+	{
+		Sensor_Convert_A2D();
+	}
+}
+void Car_CuaTrai_Process()
+{
+	Servo_SetAngle(-80);
+	MotorR_SetPWM(MaxSpeed * 1.4);
+	MotorL_SetPWM(MaxSpeed * 1.7);
+	while(!(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000))
+	{
+		Sensor_Convert_A2D();
+	}
 }
 /* USER CODE END 4 */
 
@@ -1214,7 +1361,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
