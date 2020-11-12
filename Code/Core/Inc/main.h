@@ -87,6 +87,10 @@ void OC2_IT_Setmillis(float newTime);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Debug_Led_Pin LL_GPIO_PIN_13
+#define Debug_Led_GPIO_Port GPIOC
+#define Debug_GPIO_Pin LL_GPIO_PIN_14
+#define Debug_GPIO_GPIO_Port GPIOC
 #ifndef NVIC_PRIORITYGROUP_0
 #define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bit  for pre-emption priority,
                                                                  4 bits for subpriority */
