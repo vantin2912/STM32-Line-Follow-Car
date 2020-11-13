@@ -105,6 +105,7 @@ void Sensor_Print_Thres();
 void Sensor_PrintValue();
 void Sensor_Print_LineDetect();
 void BTN_Process();
+void Car_DiThang_Process();
 void Car_BamLine_Process();
 void Car_MatLine_Process();
 void Car_ChuyenLanePhai_Process();
@@ -222,7 +223,7 @@ int main(void)
     //    printf("CuaFlag: %i ", CuaFlag);
     //    printf("MatLineFlag: %i \n", MatLineFlag);
 
-    if (HalfWhiteFlag != 0 || FullWhiteFlag != 0 || MatLineFlag != 0 || CuaFlag != 0)
+    if (HalfWhiteFlag != 0 || FullWhiteFlag != 0)
     {
       MaxSpeed = SignalSpeed;
     }
@@ -245,9 +246,8 @@ int main(void)
 
       MatLineFlag = 0;
       CarState = DiThang;
-      MotorL_SetPWM(MaxSpeed);
-      MotorR_SetPWM(MaxSpeed);
-      Servo_SetAngle(0);
+
+      Car_DiThang_Process();
       continue;
     }
     if (CarState == DiThang)
@@ -267,123 +267,93 @@ int main(void)
     }
     if (LineDetect == 0b01111111 || LineDetect == 0b00111111 || LineDetect == 0b00011111)
     {
-      //    	while(!(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000))
-      //    	{
-      //    		Sensor_Convert_A2D();
-      //    	}
-      if (FullWhiteFlag == 1)
-      {
-        //    		CuaFlag = CuaPhai;
-        FullWhiteFlag = 0;
-        while (LineDetect != 0)
-        {
-          Sensor_Convert_A2D();
-        }
-
-        Car_CuaPhai_Process();
-      }
-      else if (CuaFlag == 0)
-      {
-        HalfWhiteFlag_Raw = HalfRight;
-        continue;
-      }
+    	if(FullWhiteFlag == 1)
+    	{
+    		FullWhiteFlag = 0;
+    		while(LineDetect != 0)
+    			Sensor_Convert_A2D();
+    		Car_CuaPhai_Process();
+    		continue;
+    	} else
+    	{
+    		HalfWhiteFlag_Raw = HalfRight;
+    	};
+    	while(!(LineDetect == 0b01111111 || LineDetect == 0b00111111 || LineDetect == 0b00011111))
+    	{
+    		Sensor_Convert_A2D();
+    	}
     }
     else if (LineDetect == 0b11111000 || LineDetect == 0b11111100 || LineDetect == 0b11111110)
     {
-
-      if (FullWhiteFlag == 1)
-      {
-        //			CuaFlag = CuaTrai;
-        FullWhiteFlag = 0;
-        HalfWhiteFlag = 0;
-        while (LineDetect != 0)
-        {
-          Sensor_Convert_A2D();
-        }
-        Car_CuaTrai_Process();
-        //			CuaFlag = 0;
-      }
-      else if (CuaFlag == 0)
-      {
-        HalfWhiteFlag_Raw = HalfLeft;
-        continue;
-      }
+    	if(FullWhiteFlag == 1)
+    	{
+    		FullWhiteFlag = 0;
+    		while(LineDetect != 0)
+    			Sensor_Convert_A2D();
+    		Car_CuaTrai_Process();
+    		continue;
+    	} else
+    	{
+    		HalfWhiteFlag_Raw = HalfLeft;
+    	}
+    	while(!(LineDetect == 0b11111000 || LineDetect == 0b11111100 || LineDetect == 0b11111110))
+    	{
+    		Sensor_Convert_A2D();
+    	}
     }
     else if (LineDetect == 0xff)
     {
-      while (!(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000 || LineDetect == 0))
-        Sensor_Convert_A2D();
-      //    	LL_mDelay(1);
-      if (HalfWhiteFlag == HalfLeft)
-      {
-        HalfWhiteFlag = 0;
-        FullWhiteFlag = 0;
-        MatLineFlag = 0;
-        HalfWhiteFlag_Raw = 0;
-        Car_CuaTrai_Process();
-        CuaFlag = 0;
-      }
-      else if (HalfWhiteFlag == HalfRight)
-      {
-        HalfWhiteFlag = 0;
-        FullWhiteFlag = 0;
-        MatLineFlag = 0;
-        HalfWhiteFlag_Raw = 0;
-        Car_CuaPhai_Process();
-        CuaFlag = 0;
-      }
-      else
-      {
-        HalfWhiteFlag_Raw = 0;
-        HalfWhiteFlag = 0;
-        FullWhiteFlag = 1;
-        continue;
-      }
+    	if(HalfWhiteFlag == HalfLeft)
+    	{
+    		HalfWhiteFlag = 0;
+    		while(LineDetect != 0)
+    			Sensor_Convert_A2D();
+    		Car_CuaTrai_Process();
+    		CuaFlag = 0;
+    		continue;
+    	} else if(HalfWhiteFlag == HalfRight)
+    	{
+    		HalfWhiteFlag = 0;
+    		while(LineDetect != 0)
+    		{
+    			Sensor_Convert_A2D();
+    		}
+    		Car_CuaPhai_Process();
+    		CuaFlag = 0;
+    		continue;
+    	}else
+    	{
+    		FullWhiteFlag = 1;
+    		HalfWhiteFlag_Raw = 0;
+    		while(!(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000))
+    			Sensor_Convert_A2D();
+    	}
     }
     else if (LineDetect == 0)
     {
-      if (HalfWhiteFlag == HalfLeft)
-      {
-        HalfWhiteFlag = 0;
-        Car_ChuyenLaneTrai_Process();
-        continue;
-      }
-      else if (HalfWhiteFlag == HalfRight)
-      {
-        HalfWhiteFlag = 0;
-        Car_ChuyenLanePhai_Process();
-        continue;
-      }
-//		else if (CuaFlag == CuaTrai)
-//		{
-//		  Car_CuaTrai_Process();
-//		  CuaFlag = 0;
-//		  continue;
-//		}else if(CuaFlag == CuaPhai)
-//		{
-//		  Car_CuaPhai_Process();
-//		  CuaFlag = 0;
-//		  continue;
-//		}
-      else if (FullWhiteFlag == 1)
-      {
-        FullWhiteFlag = 0;
-        MatLineFlag = 1;
-        HalfWhiteFlag = 0;
-        MotorL_SetPWM(MaxSpeed * 1.5);
-        MotorR_SetPWM(MaxSpeed * 1.5);
-        Servo_SetAngle(-12);
-        CarState = DiThang;
-      }
+    	if (HalfWhiteFlag == HalfRight)
+    	{
+    		HalfWhiteFlag = 0;
+    		Car_ChuyenLanePhai_Process();
+    		continue;
+    	} else if(HalfWhiteFlag == HalfLeft)
+    	{
+    		HalfWhiteFlag = 0;
+    		Car_ChuyenLaneTrai_Process();
+    		continue;
+    	} else if(FullWhiteFlag == 1)
+    	{
+    		FullWhiteFlag = 0 ;
+    		Servo_SetAngle(-10);
+    		while(!(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000))
+    		{
+    			Sensor_Convert_A2D();
+    			Car_MatLine_Process();
+    		}
+    		continue;
+    	}
     };
-    if (MatLineFlag == 1)
-    {
-      Car_MatLine_Process();
-    }
-    else
-    {
       Car_BamLine_Process();
-    }
 #endif
     /* USER CODE END WHILE */
 
@@ -1165,6 +1135,28 @@ void BTN_Process()
     printf("Servo Angle: %g \n", ServoAngle);
   }
 }
+
+void Car_DiThang_Process()
+{
+	switch(LineDetect)
+	{
+	case 0b00011100:
+	      MotorL_SetPWM(MaxSpeed);
+	      MotorR_SetPWM(MaxSpeed *0.95);
+		Servo_SetAngle(-1.5);
+		break;
+	case 0b00111000:
+		MotorR_SetPWM(MaxSpeed);
+	  MotorL_SetPWM(MaxSpeed *0.995);
+		Servo_SetAngle(1);
+		break;
+	case 0b00011000:
+		MotorL_SetPWM(MaxSpeed);
+	  MotorR_SetPWM(MaxSpeed *0.998);
+		Servo_SetAngle(0);
+		break;
+	}
+}
 void Car_BamLine_Process()
 {
   if (CarState == LechTrai)
@@ -1172,14 +1164,14 @@ void Car_BamLine_Process()
     switch (LineDetect)
     {
     case 0b11000000: // 1
-      MotorR_SetPWM(MaxSpeed * 0.6);
+      MotorR_SetPWM(MaxSpeed * 0.68);
       MotorL_SetPWM(MaxSpeed * 0.8);
-      Servo_SetAngle(38); // 73
+      Servo_SetAngle(54); // 73
       break;
     case 0b10000000: // 2
-      MotorR_SetPWM(MaxSpeed * 0.70);
+      MotorR_SetPWM(MaxSpeed * 0.78);
       MotorL_SetPWM(MaxSpeed * 0.85);
-      Servo_SetAngle(32); // 64
+      Servo_SetAngle(40); // 64
       break;
       //    case 0b10000001: // 3
       //      MotorR_SetPWM(MaxSpeed * 0.8);
@@ -1188,26 +1180,26 @@ void Car_BamLine_Process()
       //      break;
     case 0b00000000: // 4
       MotorR_SetPWM(MaxSpeed * 0.80);
-      MotorL_SetPWM(MaxSpeed * 0.95);
-      Servo_SetAngle(25); // 59
+      MotorL_SetPWM(MaxSpeed * 0.9);
+      Servo_SetAngle(36); // 59
       break;
     case 0b00000001: // 5
-      MotorR_SetPWM(MaxSpeed * 0.85);
-      MotorL_SetPWM(MaxSpeed * 0.95);
-      Servo_SetAngle(18); // 45
+      MotorR_SetPWM(MaxSpeed * 0.83);
+      MotorL_SetPWM(MaxSpeed * 0.9);
+      Servo_SetAngle(28); // 45
       break;
     case 0b00000011: // 6
-      MotorR_SetPWM(MaxSpeed * 0.85);
-      MotorL_SetPWM(MaxSpeed * 1);
+      MotorR_SetPWM(MaxSpeed * 0.88);
+      MotorL_SetPWM(MaxSpeed * 0.95);
       Servo_SetAngle(16); //33
       break;
     case 0b00000111: // 7
       MotorR_SetPWM(MaxSpeed * 0.90);
-      MotorL_SetPWM(MaxSpeed * 1);
+      MotorL_SetPWM(MaxSpeed * 0.95);
       Servo_SetAngle(15); // 25
       break;
     case 0b00001110: // 8
-      MotorR_SetPWM(MaxSpeed * 0.93);
+      MotorR_SetPWM(MaxSpeed * 0.90);
       MotorL_SetPWM(MaxSpeed * 1);
       Servo_SetAngle(9); //20
       break;
@@ -1233,14 +1225,14 @@ void Car_BamLine_Process()
     switch (LineDetect)
     {
     case 0b00000011: // 1
-      MotorR_SetPWM(MaxSpeed * 0.6);
+      MotorR_SetPWM(MaxSpeed * 0.68);
       MotorL_SetPWM(MaxSpeed * 0.8);
-      Servo_SetAngle(-42); // -67
+      Servo_SetAngle(-54); // -67
       break;
     case 0b00000001: // 2
-      MotorL_SetPWM(MaxSpeed * 0.70);
+      MotorL_SetPWM(MaxSpeed * 0.76);
       MotorR_SetPWM(MaxSpeed * 0.85);
-      Servo_SetAngle(-31); // -62
+      Servo_SetAngle(-40); // -62
       break;
       //    case 0b10000001: // 3
       //      MotorR_SetPWM(MaxSpeed * 0.80);
@@ -1249,13 +1241,13 @@ void Car_BamLine_Process()
       //      break;
     case 0b00000000: // 4
       MotorL_SetPWM(MaxSpeed * 0.80);
-      MotorR_SetPWM(MaxSpeed * 0.87);
-      Servo_SetAngle(-28);//-52
+      MotorR_SetPWM(MaxSpeed * 0.90);
+      Servo_SetAngle(-36);//-52
       break;
     case 0b10000000: // 5
       MotorL_SetPWM(MaxSpeed * 0.83);
-      MotorR_SetPWM(MaxSpeed * 0.95);
-      Servo_SetAngle(-20);//-43
+      MotorR_SetPWM(MaxSpeed * 0.90);
+      Servo_SetAngle(-28);//-43
       break;
     case 0b11000000: // 6
       MotorL_SetPWM(MaxSpeed * 0.87);
@@ -1270,17 +1262,17 @@ void Car_BamLine_Process()
     case 0b01100000:
       MotorL_SetPWM(MaxSpeed * 0.87);
       MotorR_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(-8);//-24
+      Servo_SetAngle(-10);//-24
       break;
     case 0b01110000: // 8
       MotorL_SetPWM(MaxSpeed * 0.90);
       MotorR_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(-6); //-22
+      Servo_SetAngle(-9); //-22
       break;
     case 0b00110000: //9
       MotorL_SetPWM(MaxSpeed * 0.95);
       MotorR_SetPWM(MaxSpeed * 1);
-      Servo_SetAngle(-3); //-13
+      Servo_SetAngle(-7); //-13
       break;
 //    case 0b00010000: // 10
 //      MotorL_SetPWM(MaxSpeed * 0.98);
@@ -1301,35 +1293,33 @@ void Car_MatLine_Process()
   switch (LineDetect)
   {
   case 0b10000000:
-    MotorR_SetPWM(MaxSpeed * 1.7);
-    MotorL_SetPWM(MaxSpeed * 1.8);
-    Servo_SetAngle(18);
+    MotorR_SetPWM(MaxSpeed * 1);
+    MotorL_SetPWM(MaxSpeed * 1.2);
+    Servo_SetAngle(10);
     break;
   case 0b11000000:
-    MotorR_SetPWM(MaxSpeed * 1.9);
-    MotorL_SetPWM(MaxSpeed * 1.7);
-    Servo_SetAngle(20);
+    MotorR_SetPWM(MaxSpeed * 0.9);
+    MotorL_SetPWM(MaxSpeed * 1.1);
+    Servo_SetAngle(15);
     break;
   }
 }
 void Car_ChuyenLanePhai_Process()
 {
-//  MaxSpeed = MaximumSpeed;
-  MotorL_SetPWM(MaxSpeed * 0.70);
-  MotorR_SetPWM(MaxSpeed * 0.5);
-  Servo_SetAngle(20);
+  MotorL_SetPWM(MaxSpeed * 2);//0.7
+  MotorR_SetPWM(MaxSpeed * 1.8);//0.5
+  Servo_SetAngle(18);
   CarState = LechTrai;
-  while(LineDetect == 0)
+  while(!(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000))
 	  Sensor_Convert_A2D();
 }
 void Car_ChuyenLaneTrai_Process()
 {
-  MotorR_SetPWM(MaxSpeed * 1.5);
-  MotorL_SetPWM(MaxSpeed * 1.2);
-  Servo_SetAngle(-20);
+  MotorR_SetPWM(MaxSpeed * 2);//0.7
+  MotorL_SetPWM(MaxSpeed * 1.8);//0.5
+  Servo_SetAngle(-18);
   CarState = LechPhai;
-//  MaxSpeed = MaximumSpeed;
-  while(LineDetect == 0)
+  while(!(LineDetect == 0b00011000 || LineDetect == 0b00011100 || LineDetect == 0b00111000))
 	  Sensor_Convert_A2D();
 }
 void Car_CuaPhai_Process()
