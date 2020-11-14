@@ -19,7 +19,8 @@ Core/Src/stm32f1xx_it.o: ../Core/Src/stm32f1xx_it.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_tim.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usart.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_gpio.h \
- ../Core/Inc/i2c_lcd.h ../Core/Inc/main.h ../Core/Inc/stm32f1xx_it.h
+ ../Core/Inc/i2c_lcd.h ../Core/Inc/main.h \
+ ../Core/Inc/SimpleKalmanFilter.h ../Core/Inc/stm32f1xx_it.h
 
 ../Core/Inc/main.h:
 
@@ -66,5 +67,7 @@ Core/Src/stm32f1xx_it.o: ../Core/Src/stm32f1xx_it.c ../Core/Inc/main.h \
 ../Core/Inc/i2c_lcd.h:
 
 ../Core/Inc/main.h:
+
+../Core/Inc/SimpleKalmanFilter.h:
 
 ../Core/Inc/stm32f1xx_it.h:
