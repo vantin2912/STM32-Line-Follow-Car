@@ -302,7 +302,8 @@ void EXTI15_10_IRQHandler(void)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_14);
     /* USER CODE BEGIN LL_EXTI_LINE_14 */
-    BTN3_Flag = 1 ;
+
+    BTN3_Flag = BTN3_Flag? 0 : 1 ;
     /* USER CODE END LL_EXTI_LINE_14 */
   }
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
