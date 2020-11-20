@@ -8442,7 +8442,7 @@ void Car_MatLine_Process() {
  8003e8e:	d02c      	beq.n	8003eea <Car_MatLine_Process+0x6a>
 		MotorR_SetPWM(MaxSpeed * 0.8);
 		MotorL_SetPWM(MaxSpeed * 1.3);
-		Servo_SetAngle(21);
+		Servo_SetAngle(19);
 		break;
 	}
 }
@@ -8479,7 +8479,7 @@ void Car_MatLine_Process() {
  8003eda:	4603      	mov	r3, r0
  8003edc:	4618      	mov	r0, r3
  8003ede:	f7fd f925 	bl	800112c <MotorL_SetPWM>
-		Servo_SetAngle(17);
+		Servo_SetAngle(15);
  8003ee2:	4821      	ldr	r0, [pc, #132]	; (8003f68 <Car_MatLine_Process+0xe8>)
  8003ee4:	f7fd f992 	bl	800120c <Servo_SetAngle>
 		break;
@@ -8516,7 +8516,7 @@ void Car_MatLine_Process() {
  8003f32:	4603      	mov	r3, r0
  8003f34:	4618      	mov	r0, r3
  8003f36:	f7fd f8f9 	bl	800112c <MotorL_SetPWM>
-		Servo_SetAngle(21);
+		Servo_SetAngle(19);
  8003f3a:	480c      	ldr	r0, [pc, #48]	; (8003f6c <Car_MatLine_Process+0xec>)
  8003f3c:	f7fd f966 	bl	800120c <Servo_SetAngle>
 		break;
@@ -8533,8 +8533,8 @@ void Car_MatLine_Process() {
  8003f5c:	3fe99999 	.word	0x3fe99999
  8003f60:	20000205 	.word	0x20000205
  8003f64:	20000010 	.word	0x20000010
- 8003f68:	41880000 	.word	0x41880000
- 8003f6c:	41a80000 	.word	0x41a80000
+ 8003f68:	41700000 	.word	0x41700000
+ 8003f6c:	41980000 	.word	0x41980000
 
 08003f70 <Car_ChuyenLanePhai_Process>:
 void Car_ChuyenLanePhai_Process() {

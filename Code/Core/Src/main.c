@@ -1347,12 +1347,12 @@ void Car_MatLine_Process() {
 	case 0b10000000:
 		MotorR_SetPWM(MaxSpeed * 0.9);
 		MotorL_SetPWM(MaxSpeed * 1.3);
-		Servo_SetAngle(17);
+		Servo_SetAngle(15);
 		break;
 	case 0b11000000:
 		MotorR_SetPWM(MaxSpeed * 0.8);
 		MotorL_SetPWM(MaxSpeed * 1.3);
-		Servo_SetAngle(21);
+		Servo_SetAngle(19);
 		break;
 	}
 }
