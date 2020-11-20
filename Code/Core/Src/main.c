@@ -51,7 +51,7 @@
 #define CuaPhai 1
 #define BTN_Servo_Step 0.6;
 
-#define MaximumSpeed 7200
+#define MaximumSpeed 6900
 #define SignalSpeed 2000
 /* USER CODE END PD */
 
@@ -68,7 +68,8 @@
 
 // Sensor Related Variable
 volatile uint16_t Sensor_ADC_Value[8];
-uint16_t Sensor_Threshold[] = { 1500, 1500, 1200, 1800, 1200, 1500, 1200, 1500 }; // Morning
+//uint16_t Sensor_Threshold[] = { 1500, 1500, 1200, 1800, 1200, 1500, 1200, 1500 }; // Morning
+uint16_t Sensor_Threshold[] = { 1500, 2000, 2000, 2500, 1600, 2000, 1200, 1500 }; // Morning
 
 uint8_t GetThreshold_Flag = 0;
 //int8_t MaxAngle = 70;
@@ -79,6 +80,7 @@ uint16_t MaxSpeed = 7200;
 uint8_t LineDetect = 0;
 int8_t CarState = 0;
 
+int8_t ChuyenLaneFlag = 0;
 int8_t HalfWhiteFlag = 0;
 int8_t HalfWhiteFlag_Raw = 0;
 int8_t CuaFlag = 0;
@@ -222,7 +224,7 @@ int main(void)
 #if NormalRun == 0
 		BTN_Process();
 		//	  Sensor_Print_Thres();
-//		Sensor_PrintValue();
+		Sensor_PrintValue();
 //    	  LL_mDelay(200);
 //	  Sensor_Print_LineDetect();
 #endif
@@ -250,7 +252,8 @@ int main(void)
     	LineDetect = 0;
     	continue;
     }
-    if (HalfWhiteFlag != 0 || FullWhiteFlag != 0 || HalfWhiteFlag_Raw != 0)
+    if (HalfWhiteFlag != 0 || FullWhiteFlag != 0 ||
+    	HalfWhiteFlag_Raw != 0 || ChuyenLaneFlag != 0)
     {
       MaxSpeed = SignalSpeed;
     }
@@ -294,6 +297,7 @@ int main(void)
       }
 
       MatLineFlag = 0;
+      ChuyenLaneFlag = 0;
       CarState = DiThang;
 
       Car_DiThang_Process();
@@ -309,7 +313,7 @@ int main(void)
     		Car_CuaPhai_Process();
     		HalfWhiteFlag = 0;
     		continue;
-    	} else
+    	} else if(ChuyenLaneFlag == 0)
     	{
     		HalfWhiteFlag_Raw = HalfRight;
         	while(LineDetect == 0b01111111 || LineDetect == 0b00111111 || LineDetect == 0b00011111 || LineDetect == 0b00001111)
@@ -329,7 +333,7 @@ int main(void)
     		Car_CuaTrai_Process();
     		HalfWhiteFlag = 0;
     		continue;
-    	} else
+    	} else if(ChuyenLaneFlag == 0)
     	{
     		HalfWhiteFlag_Raw = HalfLeft;
         	while(LineDetect == 0b11111000 || LineDetect == 0b11111100 || LineDetect == 0b11111110)
@@ -1341,19 +1345,20 @@ void Car_MatLine_Process() {
 
 	switch (LineDetect) {
 	case 0b10000000:
-		MotorR_SetPWM(MaxSpeed * 1);
-		MotorL_SetPWM(MaxSpeed * 1.5);
+		MotorR_SetPWM(MaxSpeed * 0.9);
+		MotorL_SetPWM(MaxSpeed * 1.3);
 		Servo_SetAngle(17);
 		break;
 	case 0b11000000:
-		MotorR_SetPWM(MaxSpeed * 0.9);
-		MotorL_SetPWM(MaxSpeed * 1.5);
+		MotorR_SetPWM(MaxSpeed * 0.8);
+		MotorL_SetPWM(MaxSpeed * 1.3);
 		Servo_SetAngle(21);
 		break;
 	}
 }
 void Car_ChuyenLanePhai_Process() {
-	LL_GPIO_SetOutputPin(Debug_Led_GPIO_Port, Debug_Led_Pin);
+	ChuyenLaneFlag = 1;
+//	LL_GPIO_SetOutputPin(Debug_Led_GPIO_Port, Debug_Led_Pin);
 	MotorL_SetPWM(MaxSpeed * 2);      //0.7
 	MotorR_SetPWM(MaxSpeed * 1.7);      //0.5
 	Servo_SetAngle(54);
@@ -1367,6 +1372,7 @@ void Car_ChuyenLanePhai_Process() {
 	HalfWhiteFlag_Raw = 0;
 }
 void Car_ChuyenLaneTrai_Process() {
+	ChuyenLaneFlag = 1;
 	MotorR_SetPWM(MaxSpeed * 2);      //0.7
 	MotorL_SetPWM(MaxSpeed * 1.7);      //0.5
 	Servo_SetAngle(-30);
@@ -1380,9 +1386,9 @@ void Car_ChuyenLaneTrai_Process() {
 	HalfWhiteFlag_Raw = 0;
 }
 void Car_CuaPhai_Process() {
-	Servo_SetAngle(80);
-	MotorR_SetPWM(MaxSpeed * 1.4);
-	MotorL_SetPWM(MaxSpeed * 1.7);
+	Servo_SetAngle(85);
+	MotorR_SetPWM(MaxSpeed * 1.0);
+	MotorL_SetPWM(MaxSpeed * 1.6);
 	while (!(LineDetect == 0b00011000 || LineDetect == 0b00011100
 			|| LineDetect == 0b00111000)) {
 		Sensor_Convert_A2D();
