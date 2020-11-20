@@ -54,7 +54,8 @@ extern "C" {
 #include "stdio.h"
 #include "stdlib.h"
 //#include "string.h"
-#include "i2c_lcd.h"
+//#include "i2c_lcd.h"
+#include "Define.h"
 //#include "cstring"
 
 /* USER CODE END Includes */
