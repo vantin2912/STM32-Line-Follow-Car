@@ -1,26 +1,55 @@
 #include "i2c_lcd.h"
 
 
+uint8_t I2C_CheckEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT)
+{
+	uint32_t lastevent = 0;
+	  uint32_t flag1 = 0, flag2 = 0;
+	  uint8_t status = I2C_Error;
+
+	  /* Check the parameters */
+//	  assert_param(IS_I2C_ALL_PERIPH(I2Cx));
+//	  assert_param(IS_I2C_EVENT(I2C_EVENT));
+
+	  /* Read the I2Cx status register */
+	  flag1 = I2Cx->SR1;
+	  flag2 = I2Cx->SR2;
+	  flag2 = flag2 << 16;
+
+	  /* Get the last event value from I2C status register */
+	  lastevent = (flag1 | flag2) & I2C_FlagMask;
+
+	  /* Check whether the last event contains the I2C_EVENT */
+	  if ((lastevent & I2C_EVENT) == I2C_EVENT)
+	  {
+	    /* SUCCESS: last event is equal to I2C_EVENT */
+	    status = I2C_Success;
+	  }
+	  else
+	  {
+	    /* ERROR: last event is different from I2C_EVENT */
+	    status = I2C_Error;
+	  }
+	  /* Return status */
+	  return status;
+}
+
 void lcd_Write_byte(char data)
 {
     /* Send START condition */
-	LL_I2C_GenerateStartCondition(I2C_Chanel);
+	LL_I2C_GenerateStartCondition(I2C_Channel);
     /* Test on EV5 and clear it */
-    while (!(LL_I2C_IsActiveFlag_SB(I2C_Chanel) && LL_I2C_IsActiveFlag_BUSY(I2C_Chanel) && LL_I2C_IsActiveFlag_MSL(I2C_Chanel)));
+    while (!I2C_CheckEvent(I2C_Channel, I2C_EVENT_MASTER_MODE_SELECT));
     /* Send PCF8574A address for write */
-    LL_I2C_TransmitData8(I2C_Chanel, PCF8574A_Address);
+    LL_I2C_TransmitData8(I2C_Channel, PCF8574A_Address);
 	/* Test on EV6 and clear it */
-    while (!(LL_I2C_IsActiveFlag_BUSY(I2C_Chanel) && LL_I2C_IsActiveFlag_MSL(I2C_Chanel)
-    		&& LL_I2C_IsActiveFlag_ADDR(I2C_Chanel) && LL_I2C_IsActiveFlag_TXE(I2C_Chanel)
-			&& LL_I2C_GetTransferDirection(I2C_Chanel)));
+    while (!I2C_CheckEvent(I2C_Channel, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
     /* Send the byte to be written */
-    LL_I2C_TransmitData8(I2C_Chanel, data);
+    LL_I2C_TransmitData8(I2C_Channel, data);
     /* Test on EV8 and clear it */
-    while (!( LL_I2C_GetTransferDirection(I2C_Chanel) && LL_I2C_IsActiveFlag_BUSY(I2C_Chanel)
-    		&& LL_I2C_IsActiveFlag_MSL(I2C_Chanel) && LL_I2C_IsActiveFlag_TXE(I2C_Chanel)
-			&& LL_I2C_IsActiveFlag_BTF(I2C_Chanel)));
+    while (!I2C_CheckEvent(I2C_Channel, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
     /* Send STOP condition */
-    LL_I2C_GenerateStopCondition(I2C_Chanel);
+    LL_I2C_GenerateStopCondition(I2C_Channel);
 }
 void lcd_init (void)
 {

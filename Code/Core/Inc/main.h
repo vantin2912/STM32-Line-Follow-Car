@@ -54,7 +54,8 @@ extern "C" {
 #include "stdio.h"
 #include "stdlib.h"
 //#include "string.h"
-#include "i2c_lcd.h"
+//#include "i2c_lcd.h"
+#include "Define.h"
 //#include "cstring"
 
 /* USER CODE END Includes */
@@ -64,7 +65,8 @@ extern "C" {
 extern uint16_t Sensor_Threshold[8];
 extern uint8_t LineDectect;
 extern uint8_t GetThreshold_Flag;
-
+extern uint8_t BTN2_Flag;
+extern uint8_t BTN3_Flag;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -86,6 +88,21 @@ void OC2_IT_Setmillis(float newTime);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Debug_Led_Pin LL_GPIO_PIN_13
+#define Debug_Led_GPIO_Port GPIOC
+#define Debug_GPIO_Pin LL_GPIO_PIN_14
+#define Debug_GPIO_GPIO_Port GPIOC
+#define Distance_Pin LL_GPIO_PIN_0
+#define Distance_GPIO_Port GPIOB
+#define BTN1_Pin LL_GPIO_PIN_12
+#define BTN1_GPIO_Port GPIOB
+#define BTN1_EXTI_IRQn EXTI15_10_IRQn
+#define BTN2_Pin LL_GPIO_PIN_13
+#define BTN2_GPIO_Port GPIOB
+#define BTN2_EXTI_IRQn EXTI15_10_IRQn
+#define BTN3_Pin LL_GPIO_PIN_14
+#define BTN3_GPIO_Port GPIOB
+#define BTN3_EXTI_IRQn EXTI15_10_IRQn
 #ifndef NVIC_PRIORITYGROUP_0
 #define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bit  for pre-emption priority,
                                                                  4 bits for subpriority */

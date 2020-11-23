@@ -45,6 +45,9 @@
 volatile uint32_t RunTimeMillis = 0;
 
 uint16_t AddCPRTime = 0;
+uint8_t BTN2_Flag = 0;
+uint8_t BTN3_Flag = 0;
+uint8_t CountTime = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -255,32 +258,21 @@ void TIM4_IRQHandler(void)
 	{
 		LL_TIM_ClearFlag_UPDATE(TIM4);
 		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_11);
+		CountTime++;
+		if(CountTime > 3) CountTime = 0;
 	}
-	if(LL_TIM_IsActiveFlag_CC2(TIM4))
-	{
-		LL_GPIO_TogglePin(GPIOC, LL_GPIO_PIN_13);
-		uint16_t newCPR = TIM4->CNT + AddCPRTime - 1;
-		TIM4->CCR2 = newCPR;
-		LL_TIM_ClearFlag_CC2(TIM4);
-
-	}
+//	if(LL_TIM_IsActiveFlag_CC2(TIM4))
+//	{
+////		LL_GPIO_TogglePin(GPIOC, LL_GPIO_PIN_13);
+//		uint16_t newCPR = TIM4->CNT + AddCPRTime - 1;
+//		TIM4->CCR2 = newCPR;
+//		LL_TIM_ClearFlag_CC2(TIM4);
+//
+//	}
   /* USER CODE END TIM4_IRQn 0 */
   /* USER CODE BEGIN TIM4_IRQn 1 */
 
   /* USER CODE END TIM4_IRQn 1 */
-}
-
-/**
-  * @brief This function handles USART1 global interrupt.
-  */
-void USART1_IRQHandler(void)
-{
-  /* USER CODE BEGIN USART1_IRQn 0 */
-
-  /* USER CODE END USART1_IRQn 0 */
-  /* USER CODE BEGIN USART1_IRQn 1 */
-
-  /* USER CODE END USART1_IRQn 1 */
 }
 
 /**
@@ -303,7 +295,7 @@ void EXTI15_10_IRQHandler(void)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13);
     /* USER CODE BEGIN LL_EXTI_LINE_13 */
-
+    BTN2_Flag = 1;
     /* USER CODE END LL_EXTI_LINE_13 */
   }
   if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_14) != RESET)
@@ -311,6 +303,7 @@ void EXTI15_10_IRQHandler(void)
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_14);
     /* USER CODE BEGIN LL_EXTI_LINE_14 */
 
+    BTN3_Flag = BTN3_Flag? 0 : 1 ;
     /* USER CODE END LL_EXTI_LINE_14 */
   }
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */

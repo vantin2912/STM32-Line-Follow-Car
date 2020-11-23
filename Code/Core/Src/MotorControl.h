@@ -8,7 +8,6 @@
 
 #include <main.h>
 
-
 #ifndef SRC_MOTORCONTROL_H_
 #define SRC_MOTORCONTROL_H_
 
@@ -16,10 +15,9 @@ typedef struct USR_Encoder_Data
 {
 	uint8_t EncReso;
 	int16_t EncCount;
-	uint32_t* EncCurrentVal;
+	uint32_t *EncCurrentVal;
 	uint32_t EncPrevVal;
 } USR_Encoder_Data;
-
 
 typedef struct USR_Motor_Data
 {
