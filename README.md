@@ -11,12 +11,17 @@
 		A9: Output M2
 		A10: PWM M2
 
+	BTN:
+		B12, B13, B14
 	Sensor:
 		A0->A7: 
 		
 	Servo:
 		A11: 
 
+	UART:
+		B7: RX
+		B6: TX
 
 ## PCB Note
 	Res 150 Ohm: 0805 SMD
@@ -24,29 +29,13 @@
 	Led Blue: 0805 SMD
 	Led: Led siêu sáng
 	Cap 0.1 uF: 0805 SMD
-## Task ToDo
-- Làm mạch đặt mạch (Done)
-- Làm khung xe (Đức Working)
-- ADC Read (Done)
-- PWM (Done)
-- Encoder Read (Done)
-- LCD I2C (Cần thiết)
-- Button Process
-- UART (optional) (Done)
-- Điều khiển động cơ
-- Điều khiển Servo
 
 
 ## Code Note
-### Quy tắt đặt tên hàm:
-	{Người viết hàm USR(1-3)}_{Đối tượng tác động}_{Hành động}();
-	VD: USR1_Motor1_SetPWM()
-		USR1: Tín
-		USR2: Đức
-		USR3: Dũng
-	Mọi người có đề xuất hay ý kiến gì có thể thêm vào;
+Đọc Instruction.md
+
 ### ADC Note:
-	Giá trị ADC đọc được lưu trong mảng ADC_Value[8] tương A0->A7;
+	Giá trị ADC đọc được lưu trong mảng ADC_Value[8] tương ứng PA0->PA7;
 ### PWM Note
 	Tần số 10kHZ
 	Dùng hàm USR1_Motor1_SetPWM(int32_t PWMVal);
@@ -61,4 +50,8 @@
 	Dùng LL_TIM_GetCounter(TIMx) để lấy giá trị hoặc gọi trực tiếp TIMx->CNT cũng được
 	Chưa xử lý ngắt tràn
 ### Servo
-	Working
+	Hàm Servo_SetAngle(float Angle);
+	Giá trị góc từ -90 đến 90
+	Giá trị xung để vị trí giữa là 4500 (Tăng giảm để góc giữa phù hợp với phần cứng)
+
+	

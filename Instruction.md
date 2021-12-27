@@ -43,6 +43,13 @@ void Servo_SetAngle(float ServoAngle);
 
 Điều khiển góc quay của Servo;
 ServoAngle trong khoảng từ -90 đến 90 độ
-**Note** Không nên để servo quay max góc -90 hay 90 độ tầm -70 độ là ổn
+
+```
+
+```c
+void Servo_SetAngle(float ServoAngle);
+
+Điều khiển góc quay của Servo;
+ServoAngle trong khoảng từ -90 đến 90 độ
 
 ```

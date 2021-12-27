@@ -34,7 +34,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define NormalRun 1
-#define HackMap 0
 
 #define ADC1_DR_Address ((uint32_t)0x4001244C)
 #define ADC_Sample_Times 1000000 // So Lan doc ADC Lay nguong
@@ -87,15 +86,6 @@ int8_t CuaFlag = 0;
 uint8_t FullWhiteFlag = 0;
 uint8_t MatLineFlag = 0;
 
-#if HackMap == 1
-#define Opt1Flag 1
-#define Opt2Flag 2
-
-uint8_t RunOption;
-uint8_t* HackRun;
-uint8_t Opt1 = {ChuyenTrai, NgaBaTrai, VuongPhai, MatLine, ChuyenPhai, NgaBaPhai, VatCan, CuaTrai, MatLine};
-uint8_t Opt2 = {ChuyenPhai, NgaBaPhai, VatCan, CuaTrai, MatLine, ChuyenTrai, NgaBaTrai, VuongPhai, MatLine};
-#endif
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -680,8 +670,6 @@ static void MX_TIM1_Init(void)
   LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH1, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM1, LL_TIM_CHANNEL_CH1);
   LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH3);
-  TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
-  TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
   LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH3, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM1, LL_TIM_CHANNEL_CH3);
   LL_TIM_SetTriggerOutput(TIM1, LL_TIM_TRGO_RESET);
@@ -884,8 +872,6 @@ static void MX_TIM4_Init(void)
   LL_TIM_OC_Init(TIM4, LL_TIM_CHANNEL_CH1, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM4, LL_TIM_CHANNEL_CH1);
   TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_FROZEN;
-  TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
-  TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
   LL_TIM_OC_Init(TIM4, LL_TIM_CHANNEL_CH2, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM4, LL_TIM_CHANNEL_CH2);
   LL_TIM_SetTriggerOutput(TIM4, LL_TIM_TRGO_RESET);
